@@ -13,7 +13,9 @@ export function canUseBackend(){
 async function request(path, options){
   if(!canUseBackend()) throw new Error("Backend indisponivel");
   const res = await fetch(path, Object.assign({
-    headers: JSON_HEADERS
+    headers: JSON_HEADERS,
+    signal: AbortSignal.timeout(5000),
+    keepalive: !options?.body || new TextEncoder().encode(options.body).byteLength < 60000
   }, options || {}));
 
   if(!res.ok){

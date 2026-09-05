@@ -1,73 +1,144 @@
 # Arquitetura do Maru
 
-O projeto está separado em quatro camadas:
+O produto começa com uma trilha para quem ainda não conhece japonês. Conteúdo
+didático, regras de aprendizado, infraestrutura e interface são separados.
+JavaScript nativo e CSS dão conta da aplicação sem build obrigatório.
 
-- `frontend/`: entrega a experiência do aluno no navegador.
-- `backend/`: expõe API HTTP, serve arquivos estáticos e concentra serviços do servidor.
-- `shared/`: mantém dados de estudo que precisam ser usados por frontend e backend.
-- `data/`: guarda dados locais de desenvolvimento, como progresso do usuário.
+## Fronteiras
 
-## Frontend
+| Camada | Responsabilidade |
+| --- | --- |
+| `shared/lessons/` | Texto das lições, exemplos, objetivos e perguntas. |
+| `shared/curriculum.js` | Ordem das oito etapas, índice de lições e referências. |
+| `shared/catalog.js` | Combinações, kanji iniciais, partículas, expressões e frases. |
+| `shared/content.js` | Kana básicos e acervo complementar preservado. |
+| `shared/progress.js` | Normalização, migração, mesclagem, XP, constância e revisão. |
+| `shared/sentenceCheck.js` | Verificação de exercícios conhecidos, reutilizada offline. |
+| `shared/romaji.js` | Leitura de kana e comparação em diferentes grafias. |
+| `backend/` | HTTP, rotas, arquivos estáticos e persistência. |
+| `frontend/assets/js/core/` | Estado persistido, áudio, ícones e helpers de UI. |
+| `frontend/assets/js/features/` | Telas e controladores de cada atividade. |
+| `frontend/assets/css/` | Sistema visual, layout, componentes e responsividade. |
 
-O frontend continua sem build obrigatório, mas agora está dividido por camadas:
+Conteúdo e domínio compartilhados não dependem de DOM nem do servidor. As telas
+chamam as regras de domínio sem reimplementar XP, migração ou revisão.
 
-- `frontend/index.html`: shell HTML, fontes, importmap e raízes do app.
-- `frontend/assets/js/app.js`: orquestra estado, rotas internas e dispatch de ações.
-- `frontend/assets/js/api.js`: cliente HTTP da API do backend.
-- `frontend/assets/js/core/`: helpers compartilhados de UI e animação.
-- `frontend/assets/js/features/`: renderizadores de domínio, como a arena de kana.
-- `frontend/assets/js/motion-layer.js`: microinterações Motion.dev para hover, press e reveal.
-- `frontend/assets/js/react-bits-layer.js`: camada React isolada para efeitos visuais.
-- `frontend/assets/css/main.css`: agregador de CSS por `@import`.
-- `frontend/assets/css/foundation/`: tokens, reset e base global.
-- `frontend/assets/css/components/`: HUD, botões, cards e efeitos React Bits.
-- `frontend/assets/css/screens/`: telas de kana grind, prática e suporte.
-- `frontend/assets/css/responsive.css`: breakpoints e adaptações mobile.
+## Inicialização e navegação
 
-Essa separação mantém a experiência de kana grind como foco visual e evita que a
-SPA volte a depender de um único arquivo gigante de CSS.
+1. O backend cria o servidor e inicia a escuta quando executado diretamente.
+2. `staticFiles.js` serve apenas frontend e shared, com validação de caminhos.
+3. O HTML carrega o agregador de CSS e o módulo `app.js`.
+4. O store lê o estado local, migra dados antigos e mescla o snapshot do servidor.
+5. O app monta o shell e escolhe a tela pela URL, como `#/lesson/welcome`.
+6. Cada tela renderiza em main e devolve um cleanup para eventos e recursos.
+7. Ao navegar, o app limpa os recursos, interrompe o áudio e foca o título.
 
-## Fluxo de execução
+Histórico, links diretos e recarga funcionam com rotas por hash. O shell fica
+montado entre telas. Alterações de progresso atualizam seus contadores sem
+reconstruir uma atividade em andamento. Na navegação móvel, as regiões
+inativas recebem inert; foco e Escape são tratados pelo shell.
 
-1. `npm run dev` inicia `backend/server.js`.
-2. O backend serve `frontend/index.html` em `/`.
-3. O frontend carrega `frontend/assets/css/main.css`.
-4. O frontend importa `frontend/assets/js/app.js`.
-5. `app.js` importa helpers de `core/` e renderizadores de `features/`.
-6. `motion-layer.js` aplica microinterações progressivas com Motion.dev.
-7. `react-bits-layer.js` monta efeitos visuais em uma raiz React separada.
-8. O app importa dados de `shared/content.js`, servido em `/shared/content.js`.
-9. Progresso e correção de frases passam pela API em `/api/*`.
+## Telas
 
-## API atual
-
-- `GET /api/health`: confirma que o backend está ativo.
-- `GET /api/content`: retorna conteúdo de estudo.
-- `GET /api/progress`: retorna progresso persistido.
-- `PUT /api/progress`: salva progresso persistido.
-- `POST /api/phrase/check`: avalia uma frase escrita pelo aluno.
-
-## Vendor local
-
-O backend serve apenas os bundles necessários:
-
-- `/vendor/animejs/anime.esm.min.js`
-- `/vendor/motion/motion.js`
-- `/vendor/react/react.production.min.js`
-- `/vendor/react-dom/react-dom.production.min.js`
-
-Isso evita depender de CDN em runtime e também evita expor `node_modules` inteiro.
+- Dashboard: próximo passo, meta diária e acesso às práticas.
+- Journey: etapas expansíveis e estado de cada lição.
+- Lesson: leitura, perguntas explicadas e recuperação dos erros.
+- Kana: tabela, fileiras e configuração das rodadas.
+- Practice: rodada reutilizável, respostas e repetição dos erros.
+- Writing: modelos, animação e canvas.
+- Sentences: blocos e digitação para situações específicas.
+- Reference: kanji, partículas, expressões, biblioteca e revisão.
+- Settings: romaji, meta diária e indicadores.
 
 ## Persistência
 
-O backend grava progresso em `data/progress/<user>.json`. Por enquanto existe um
-usuário local padrão. O header `x-maru-user` já permite separar progresso por
-usuário sem mudar os endpoints.
+O schema v2 contém lessons, reviews, activity, preferences e updatedAt, além
+dos campos anteriores progress, kanaStats, xp, streak e stats.
 
-## Próximos cortes naturais
+A normalização limita números, valida estruturas e converte revisões antigas.
+A mesclagem mantém a união das conclusões e os registros de revisão mais
+recentes; contadores históricos preservam o maior valor.
 
-- autenticação real e perfis de aluno;
-- banco de dados no lugar de JSON local;
-- serviço de correção com IA ou regras gramaticais mais completas;
-- testes automatizados de API e interface;
-- build frontend com Vite ou framework quando a interface crescer.
+O navegador grava imediatamente em `maru-learning-v2`. Chaves
+`maru-*-v1` e `nihongo-dojo-*-v1` são lidas na primeira migração e permanecem
+intactas. O envio ao servidor é serializado, com debounce, timeout e retomada
+ao voltar à conexão. A UI distingue salvamento no servidor, somente no
+navegador e somente na sessão.
+
+O servidor normaliza novamente, serializa gravações por perfil e usa arquivo
+temporário seguido de rename. O diretório padrão é relativo ao módulo,
+independente do diretório de execução. Não há autenticação nem sincronização
+colaborativa entre usuários.
+
+## Regras de aprendizado
+
+Uma lição exige responder corretamente a todas as perguntas. As erradas são
+explicadas e retornam antes da conclusão. Os 30 XP são concedidos uma vez.
+
+Rodadas usam no máximo dez itens. Cada resposta verificada é registrada uma
+vez antes do avanço. Distratores são distintos e pertencem ao mesmo tipo de
+pergunta. Três acertos seguidos são um indicador de prática, não uma certificação.
+
+Erros retornam em dez minutos. Acertos começam com um intervalo de um dia e
+dobram até sessenta dias. A prática livre continua disponível.
+
+O registro de escrita concede 5 XP uma vez por folha/caractere aberto e não
+altera o desempenho de reconhecimento de kana. A caligrafia é autoavaliada.
+
+## Frases, áudio e escrita
+
+A API de frases recebe exerciseId e text. Compara modelos canônicos em japonês,
+leituras em kana e formas de romaji previstas. Divergência significa “diferente
+do modelo”, não “gramaticalmente impossível”. O mesmo código funciona localmente.
+O formato legado com item permanece, sem dar notas artificiais a frases livres.
+
+O áudio usa SpeechSynthesis com uma voz ja do dispositivo. Sem uma voz adequada,
+informa a indisponibilidade em vez de usar outra língua.
+
+`frontend/assets/data/strokes.json` contém os caminhos em ordem extraídos de
+KanjiVG: 142 kana e 20 kanji. A atualização é manual:
+`python3 scripts/fetch-strokes.py`. O uso normal não precisa da rede.
+O arquivo derivado mantém CC BY-SA 3.0 e atribuição.
+
+O canvas usa coordenadas normalizadas e redesenha ao mudar de tamanho.
+Pointer Events permitem mouse, toque e caneta. Mostrar o guia não limpa o
+desenho. Animações respeitam a preferência por movimento reduzido.
+
+## CSS
+
+A folha anterior foi substituída integralmente:
+
+- foundation/tokens.css: cores, fontes e tokens estruturais;
+- foundation/base.css: reset, tipografia, foco e movimento;
+- layout.css: shell, navegação, cabeçalhos e rodapé;
+- components.css: botões, campos, exemplos e feedback;
+- screens.css: composição de cada tela;
+- responsive.css: desktop, tablet e celular.
+
+O visual usa papel claro, tons naturais e vermelho. Fontes externas têm
+fallbacks locais. React, Motion e Anime.js foram removidos; as animações de
+traços usam a Web Animations API.
+
+## API
+
+| Método | Caminho | Uso |
+| --- | --- | --- |
+| GET | /api/health | Saúde e versão. |
+| GET | /api/content | Currículo, catálogos e campos legados. |
+| GET | /api/progress | Snapshot normalizado. |
+| PUT / POST | /api/progress | Persistência de snapshot. |
+| POST | /api/phrase/check | Comparação com o modelo de uma atividade. |
+
+O header x-maru-user separa perfis de desenvolvimento e não autentica ninguém.
+JSON inválido retorna 400; corpo excessivo, 413; caminhos inexistentes, 404.
+
+## Verificação
+
+`npm run check` verifica sintaxe dos módulos e imports das folhas de estilo.
+`npm test` cobre currículo, respostas, traços, migração, revisão, constância,
+API e gravações concorrentes.
+
+`npm run test:e2e` usa servidor e dados isolados. Verifica conclusão e retomada,
+erros, kana digitado, frases, escrita, filtros, revisão, fallback local,
+histórico e teclado. As telas são verificadas em 320, 390, 768 e 1440 pixels
+com captura dos erros do navegador.

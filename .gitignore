@@ -4,3 +4,5 @@ node_modules/
 # Persistencia local do backend de desenvolvimento.
 data/progress/*.json
 data/progress/*.tmp
+playwright-report/
+test-results/

@@ -1,33 +1,22 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Maru, um site para aprender japonês com kana, escrita, frases, guias e revisão espaçada.">
-<title>Maru - Aprenda japonês</title>
-<link rel="icon" href="./assets/img/maru-crest.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=Shippori+Mincho:wght@400;500;600;800&amp;family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&amp;display=swap">
-<link rel="stylesheet" href="./assets/css/main.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7f3">
+  <meta name="description" content="Comece japonês do absoluto zero. Uma trilha guiada de kana, kanji, escrita, frases e conversas para aprender no seu ritmo.">
+  <title>Maru · Japonês, um passo de cada vez</title>
+  <link rel="icon" href="/assets/img/maru-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&amp;family=DM+Serif+Display:ital@0;1&amp;family=Noto+Sans+JP:wght@400;500;600;700&amp;family=Noto+Serif+JP:wght@400;500;600&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/main.css">
 </head>
 <body>
-
-<div id="react-bits-root" aria-hidden="true"></div>
-<div class="wrap" id="app"></div>
-
-<script src="/vendor/motion/motion.js"></script>
-<script src="./assets/js/motion-layer.js"></script>
-<script src="/vendor/react/react.production.min.js"></script>
-<script src="/vendor/react-dom/react-dom.production.min.js"></script>
-<script src="./assets/js/react-bits-layer.js"></script>
-<script type="importmap">
-{
-  "imports": {
-    "animejs": "/vendor/animejs/anime.esm.min.js"
-  }
-}
-</script>
-<script type="module" src="./assets/js/app.js"></script>
+  <a class="skip-link" href="#main">Pular para o conteúdo</a>
+  <div id="app"><div class="app-loading"><span class="loading-mark" lang="ja">まる</span><p>Preparando seu espaço de aprendizado…</p></div></div>
+  <noscript><p class="noscript">Ative o JavaScript para acessar as lições e as atividades do Maru.</p></noscript>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="/assets/js/app.js"></script>
 </body>
 </html>

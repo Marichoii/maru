@@ -133,11 +133,11 @@ export var DATA = [
 
 export var LEVELS = ["N5","N4","N3","N2","N1"];
 export var LEVEL_META = {
-  N5:{name:"Iniciante absoluto", desc:"As bases: verbos essenciais, partículas e o vocabulário do dia a dia."},
+  N5:{name:"Japonês básico", desc:"Seleção complementar de vocabulário, kanji e estruturas básicas."},
   N4:{name:"Básico", desc:"Frases mais longas, conectores e o essencial para conversas simples."},
   N3:{name:"Intermediário", desc:"Vocabulário abstrato e estruturas usadas em notícias e no trabalho."},
   N2:{name:"Avançado", desc:"Nuances formais, leitura de textos complexos e argumentação."},
-  N1:{name:"Quase nativo", desc:"Expressões literárias e formais no topo da proficiência."}
+  N1:{name:"Compreensão avançada", desc:"Seleção de expressões formais e de leitura avançada; não equivale a fluência nativa."}
 };
 export var CAT_LABEL = {all:"Tudo", vocab:"Vocabulário", kanji:"Kanji", grammar:"Gramática"};
 export var CAT_LABEL_SING = {vocab:"Vocabulário", kanji:"Kanji", grammar:"Gramática"};
@@ -275,4 +275,3 @@ export var BUILDER_PATTERNS = [
     ]
   }
 ];
-
