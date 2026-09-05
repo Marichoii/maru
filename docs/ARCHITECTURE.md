@@ -16,6 +16,7 @@ O frontend continua sem build obrigatório, mas agora está dividido por camadas
 - `frontend/assets/js/api.js`: cliente HTTP da API do backend.
 - `frontend/assets/js/core/`: helpers compartilhados de UI e animação.
 - `frontend/assets/js/features/`: renderizadores de domínio, como a arena de kana.
+- `frontend/assets/js/motion-layer.js`: microinterações Motion.dev para hover, press e reveal.
 - `frontend/assets/js/react-bits-layer.js`: camada React isolada para efeitos visuais.
 - `frontend/assets/css/main.css`: agregador de CSS por `@import`.
 - `frontend/assets/css/foundation/`: tokens, reset e base global.
@@ -33,9 +34,10 @@ SPA volte a depender de um único arquivo gigante de CSS.
 3. O frontend carrega `frontend/assets/css/main.css`.
 4. O frontend importa `frontend/assets/js/app.js`.
 5. `app.js` importa helpers de `core/` e renderizadores de `features/`.
-6. `react-bits-layer.js` monta efeitos visuais em uma raiz React separada.
-7. O app importa dados de `shared/content.js`, servido em `/shared/content.js`.
-8. Progresso e correção de frases passam pela API em `/api/*`.
+6. `motion-layer.js` aplica microinterações progressivas com Motion.dev.
+7. `react-bits-layer.js` monta efeitos visuais em uma raiz React separada.
+8. O app importa dados de `shared/content.js`, servido em `/shared/content.js`.
+9. Progresso e correção de frases passam pela API em `/api/*`.
 
 ## API atual
 
@@ -50,6 +52,7 @@ SPA volte a depender de um único arquivo gigante de CSS.
 O backend serve apenas os bundles necessários:
 
 - `/vendor/animejs/anime.esm.min.js`
+- `/vendor/motion/motion.js`
 - `/vendor/react/react.production.min.js`
 - `/vendor/react-dom/react-dom.production.min.js`
 

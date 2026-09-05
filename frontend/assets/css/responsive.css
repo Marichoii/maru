@@ -63,7 +63,7 @@
   .app-header{
     top:8px;
     padding:.65rem;
-    box-shadow:4px 4px 0 var(--shadow), var(--glow-cyan);
+    box-shadow:var(--pixel-shadow), var(--glow-cyan);
   }
 
   .brand-mark{
@@ -89,19 +89,14 @@
     text-align:center;
   }
 
-  .page-title{
-    font-size:1.78rem;
-  }
-
   .grind-hero{
     min-height:auto;
     padding:1rem;
-    box-shadow:4px 4px 0 var(--shadow), var(--glow-cyan);
+    box-shadow:var(--pixel-shadow), var(--glow-cyan);
   }
 
   .grind-hero .page-title{
     max-width:100%;
-    font-size:2.12rem;
   }
 
   .hero-kana-burst{
@@ -156,18 +151,6 @@
     height:340px;
   }
 
-  .term{
-    font-size:3.35rem;
-  }
-
-  .sentence-display{
-    font-size:2rem;
-  }
-
-  .phrase-prompt .term{
-    font-size:2.8rem;
-  }
-
   .phrase-textarea{
     font-size:1.1rem;
   }
@@ -187,26 +170,37 @@
     gap:.6rem;
   }
 
-  .brand-jp{
-    font-size:1.22rem;
+  .brand-en,
+  .quest-reward,
+  .quest-check,
+  .xp-total{
+    font-size:.5rem;
   }
 
-  .brand-en,
-  .nav-btn,
-  .btn,
+  .nav-btn{
+    font-size:.56rem;
+  }
+
+  .btn{
+    font-size:.58rem;
+  }
+
   .eyebrow,
   .rank-chip,
   .tag,
   .combo-badge,
-  .feedback-badge,
+  .feedback-badge{
+    font-size:.66rem;
+  }
+
   .slot-label,
   .row-group-label,
-  .kana-ring,
-  .quest-reward,
-  .quest-check,
-  .xp-total,
+  .kana-ring{
+    font-size:.62rem;
+  }
+
   .end-score{
-    font-size:.48rem;
+    font-size:1.1rem;
   }
 
   .header-nav{

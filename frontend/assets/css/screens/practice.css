@@ -25,14 +25,15 @@
   position:relative;
   margin:.85rem 0 .35rem;
   color:#fff;
-  font-size:1.1rem;
+  font-size:var(--text-md);
 }
 
 .mode-card p{
   position:relative;
   margin:0;
   color:var(--ink-soft);
-  font-size:.88rem;
+  font-size:var(--text-sm);
+  line-height:1.5;
 }
 
 .mode-mark{
@@ -137,16 +138,16 @@
 .term{
   max-width:100%;
   color:#fff;
-  font-size:4.8rem;
-  line-height:1.05;
+  font-size:var(--text-4xl);
+  line-height:1.1;
   overflow-wrap:anywhere;
-  text-shadow:3px 0 var(--pink), -3px 0 var(--cyan);
+  text-shadow:0 0 34px rgba(53,232,255,.28);
 }
 
 .hint,
 .back-label{
   color:var(--muted);
-  font-size:.54rem;
+  font-size:.74rem;
   line-height:1.5;
   text-transform:uppercase;
 }
@@ -168,8 +169,8 @@
   width:min(100%, 430px);
   margin-top:.2rem;
   padding:.8rem;
-  background:#080d1d;
-  border:2px solid rgba(124,139,168,.36);
+  background:rgba(255,255,255,.025);
+  border:var(--flat-border);
 }
 
 .ex-jp{
@@ -203,9 +204,9 @@
   color:#fff;
   background:var(--surface);
   border:2px solid var(--line);
-  box-shadow:3px 3px 0 var(--shadow);
+  box-shadow:var(--pixel-shadow-sm);
   transform:rotate(var(--tilt, 0deg));
-  transition:transform var(--speed) steps(2), border-color var(--speed) steps(2), box-shadow var(--speed) steps(2);
+  transition:transform var(--speed) var(--ease-snap), border-color var(--speed) var(--ease-snap), box-shadow .22s var(--ease-premium);
 }
 
 .rate-btn:hover{
@@ -261,8 +262,8 @@
   font-weight:900;
   background:#080d1d;
   border:2px solid rgba(124,139,168,.42);
-  box-shadow:3px 3px 0 var(--shadow);
-  transition:transform var(--speed) steps(2), border-color var(--speed) steps(2), box-shadow var(--speed) steps(2), background var(--speed) steps(2);
+  box-shadow:var(--pixel-shadow-sm);
+  transition:transform var(--speed) var(--ease-snap), border-color var(--speed) var(--ease-snap), box-shadow .22s var(--ease-premium), background var(--speed) var(--ease-snap);
 }
 
 .quiz-opt:hover:not(:disabled){
@@ -372,7 +373,7 @@
 }
 
 .phrase-prompt .term{
-  font-size:3.8rem;
+  font-size:clamp(2.4rem, 1.6rem + 4vw, 3.8rem);
 }
 
 .phrase-meaning,
@@ -434,8 +435,8 @@
   padding:.8rem;
   color:#fff;
   font-size:1.35rem;
-  background:#080d1d;
-  border:2px solid rgba(124,139,168,.36);
+  background:rgba(255,255,255,.025);
+  border:var(--flat-border);
 }
 
 .end-card{
@@ -447,7 +448,7 @@
 .end-card h2{
   margin:.25rem 0;
   color:#fff;
-  font-size:2.15rem;
+  font-size:clamp(1.7rem, 1.35rem + 1.8vw, 2.15rem);
 }
 
 .end-score{

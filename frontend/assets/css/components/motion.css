@@ -1,0 +1,59 @@
+.has-motion-dev .btn,
+.has-motion-dev .chip,
+.has-motion-dev .nav-btn,
+.has-motion-dev .tool-card,
+.has-motion-dev .mode-card,
+.has-motion-dev .level-tile,
+.has-motion-dev .quiz-opt,
+.has-motion-dev .rate-btn,
+.has-motion-dev .kana-hub-card,
+.has-motion-dev .guide-card,
+.has-motion-dev .ach-card,
+.has-motion-dev .hud-chip,
+.has-motion-dev .grind-hero,
+.has-motion-dev .hero-kana-burst span,
+.has-motion-dev .section-head,
+.has-motion-dev .row-group{
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+.motion-ready .btn,
+.motion-ready .chip,
+.motion-ready .nav-btn,
+.motion-ready .tool-card,
+.motion-ready .mode-card,
+.motion-ready .level-tile,
+.motion-ready .quiz-opt,
+.motion-ready .rate-btn,
+.motion-ready .kana-hub-card,
+.motion-ready .guide-card,
+.motion-ready .ach-card{
+  transition:
+    border-color 140ms steps(2, end),
+    color 140ms steps(2, end),
+    background 140ms steps(2, end),
+    box-shadow 140ms steps(2, end);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .has-motion-dev .btn,
+  .has-motion-dev .chip,
+  .has-motion-dev .nav-btn,
+  .has-motion-dev .tool-card,
+  .has-motion-dev .mode-card,
+  .has-motion-dev .level-tile,
+  .has-motion-dev .quiz-opt,
+  .has-motion-dev .rate-btn,
+  .has-motion-dev .kana-hub-card,
+  .has-motion-dev .guide-card,
+  .has-motion-dev .ach-card,
+  .has-motion-dev .hud-chip,
+  .has-motion-dev .grind-hero,
+  .has-motion-dev .hero-kana-burst span,
+  .has-motion-dev .section-head,
+  .has-motion-dev .row-group{
+    transition: none;
+    will-change: auto;
+  }
+}

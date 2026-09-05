@@ -1,6 +1,7 @@
 @import "./foundation/tokens.css";
 @import "./foundation/base.css";
 @import "./components/react-bits.css";
+@import "./components/motion.css";
 @import "./components/hud.css";
 @import "./components/buttons.css";
 @import "./components/cards.css";

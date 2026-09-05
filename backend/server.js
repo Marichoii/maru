@@ -22,6 +22,7 @@ const ROOT_DIR = path.resolve(__dirname, "..");
 const FRONTEND_DIR = path.join(ROOT_DIR, "frontend");
 const SHARED_DIR = path.join(ROOT_DIR, "shared");
 const ANIMEJS_FILE = path.join(ROOT_DIR, "node_modules", "animejs", "dist", "bundles", "anime.esm.min.js");
+const MOTION_FILE = path.join(ROOT_DIR, "node_modules", "motion", "dist", "motion.js");
 const REACT_FILE = path.join(ROOT_DIR, "node_modules", "react", "umd", "react.production.min.js");
 const REACT_DOM_FILE = path.join(ROOT_DIR, "node_modules", "react-dom", "umd", "react-dom.production.min.js");
 const PORT = Number(process.env.PORT) || 5173;
@@ -135,6 +136,10 @@ async function sendFile(res, target){
 async function sendStatic(req, res, pathname){
   if(pathname === "/vendor/animejs/anime.esm.min.js"){
     await sendFile(res, ANIMEJS_FILE);
+    return;
+  }
+  if(pathname === "/vendor/motion/motion.js"){
+    await sendFile(res, MOTION_FILE);
     return;
   }
   if(pathname === "/vendor/react/react.production.min.js"){

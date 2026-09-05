@@ -61,7 +61,7 @@
 
 .slot-label{
   color:var(--muted);
-  font-size:.52rem;
+  font-size:.7rem;
   line-height:1.5;
   text-transform:uppercase;
 }
@@ -86,10 +86,10 @@
 .sentence-display{
   margin:.45rem 0 .4rem;
   color:#fff;
-  font-size:2.7rem;
-  line-height:1.18;
+  font-size:clamp(1.9rem, 1.3rem + 3vw, 2.7rem);
+  line-height:1.25;
   overflow-wrap:anywhere;
-  text-shadow:3px 0 var(--pink), -3px 0 var(--cyan);
+  text-shadow:0 0 30px rgba(53,232,255,.24);
 }
 
 .reading-line,
@@ -109,8 +109,8 @@
 .builder-notes{
   margin:1rem 0 0;
   padding:.85rem;
-  background:#080d1d;
-  border:2px solid rgba(53,232,255,.32);
+  background:rgba(53,232,255,.05);
+  border:1px solid rgba(53,232,255,.28);
 }
 
 .builder-notes b{
@@ -137,8 +137,8 @@
   align-items:flex-start;
   min-height:82px;
   padding:.72rem;
-  background:#080d1d;
-  border:2px solid rgba(124,139,168,.36);
+  background:rgba(255,255,255,.025);
+  border:var(--flat-border);
 }
 
 .particle-cell b{
@@ -168,12 +168,13 @@
 .guide-card h2{
   margin:0 0 .7rem;
   color:#fff;
-  font-size:1.15rem;
+  font-size:var(--text-lg);
 }
 
 .guide-card li,
 .guide-card p{
   color:var(--ink-soft);
+  font-size:var(--text-sm);
 }
 
 .guide-actions{
@@ -193,13 +194,13 @@
   gap:.5rem;
   margin:1rem 0;
   padding:.85rem;
-  background:rgba(8,13,29,.78);
-  border:2px solid rgba(124,139,168,.34);
+  background:rgba(255,255,255,.025);
+  border:var(--flat-border);
 }
 
 .row-group-label{
   color:var(--muted);
-  font-size:.52rem;
+  font-size:.7rem;
   line-height:1.5;
   text-transform:uppercase;
 }

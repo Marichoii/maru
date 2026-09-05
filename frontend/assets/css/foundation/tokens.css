@@ -1,12 +1,12 @@
 :root{
-  --bg:#050713;
+  --bg:#05060f;
   --bg-grid:#11172a;
   --surface:#0b1022;
   --surface-2:#111a33;
   --surface-3:#172446;
   --ink:#f7fbff;
-  --ink-soft:#b7c4e0;
-  --muted:#7c8ba8;
+  --ink-soft:#c1cce6;
+  --muted:#8b99bd;
   --line:#2b3d66;
   --line-bright:#55e8ff;
   --shadow:#02040a;
@@ -21,15 +21,56 @@
   --danger:#ff4b5f;
   --ok:#35f29a;
   --radius:0;
+
+  /* premium accent gradients — 2-3 stop instead of full rainbow */
+  --gradient-premium:linear-gradient(90deg, var(--pink) 0%, var(--violet) 52%, var(--cyan) 100%);
+  --gradient-gold:linear-gradient(90deg, var(--orange), var(--yellow));
+  --gradient-mint:linear-gradient(90deg, var(--cyan), var(--green));
+
   --pixel-border:2px solid var(--line);
   --pixel-border-hot:2px solid var(--line-bright);
-  --pixel-shadow:4px 4px 0 var(--shadow);
-  --pixel-shadow-lg:6px 6px 0 var(--shadow);
-  --glow-cyan:0 0 0 1px rgba(53,232,255,.34), 0 0 24px rgba(53,232,255,.2);
-  --glow-pink:0 0 0 1px rgba(255,63,139,.34), 0 0 24px rgba(255,63,139,.18);
+
+  /* reserved for primary surfaces only (hero, nav, key CTAs, elevated cards) */
+  --pixel-shadow:4px 4px 0 var(--shadow), 0 16px 32px -18px rgba(2,4,12,.75);
+  --pixel-shadow-lg:6px 6px 0 var(--shadow), 0 24px 48px -20px rgba(2,4,12,.8);
+  --pixel-shadow-sm:3px 3px 0 var(--shadow), 0 10px 22px -14px rgba(2,4,12,.7);
+
+  /* quiet tier — badges, list rows, secondary chips: presence without competing for attention */
+  --flat-border:1px solid rgba(124,139,168,.28);
+  --flat-shadow:0 1px 0 rgba(255,255,255,.03) inset;
+
+  --glow-cyan:0 0 0 1px rgba(53,232,255,.34), 0 0 28px rgba(53,232,255,.22);
+  --glow-pink:0 0 0 1px rgba(255,63,139,.34), 0 0 26px rgba(255,63,139,.2);
+  --glow-gold:0 0 0 1px rgba(255,216,74,.36), 0 0 26px rgba(255,216,74,.2);
+
   --font-pixel:"Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-ui:"Zen Kaku Gothic New", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-jp:"Shippori Mincho", "Yu Mincho", "Hiragino Mincho ProN", serif;
+
+  /* type scale — one ramp, reused everywhere so size always signals the same weight of information */
+  --text-2xs:.7rem;
+  --text-xs:.8rem;
+  --text-sm:.9rem;
+  --text-base:1rem;
+  --text-md:1.1rem;
+  --text-lg:clamp(1.2rem, 1.1rem + .5vw, 1.35rem);
+  --text-xl:clamp(1.4rem, 1.2rem + 1vw, 1.65rem);
+  --text-2xl:clamp(1.75rem, 1.35rem + 2.1vw, 2.25rem);
+  --text-3xl:clamp(2.1rem, 1.5rem + 3vw, 2.85rem);
+  --text-4xl:clamp(2.5rem, 1.6rem + 5vw, 4.2rem);
+
+  /* spacing scale — consistent rhythm instead of ad hoc gaps */
+  --space-1:.4rem;
+  --space-2:.65rem;
+  --space-3:1rem;
+  --space-4:1.5rem;
+  --space-5:2.25rem;
+  --space-6:3.25rem;
+
   --speed:.16s;
+  --ease-snap:steps(2, end);
+  --ease-premium:cubic-bezier(.16, 1, .3, 1);
+  --ease-out:cubic-bezier(.22, 1, .36, 1);
+
   color-scheme:dark;
 }
