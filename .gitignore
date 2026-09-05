@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+
+# Persistencia local do backend de desenvolvimento.
+data/progress/*.json
+data/progress/*.tmp

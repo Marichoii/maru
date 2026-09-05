@@ -1,0 +1,21 @@
+{
+  "name": "maru",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Maru, site full stack para estudar japones.",
+  "scripts": {
+    "dev": "node backend/server.js",
+    "start": "node backend/server.js",
+    "check": "node --check backend/server.js && node --check backend/storage.js && node --check backend/phraseService.js && node --check shared/content.js && node --check frontend/assets/js/api.js && node --check frontend/assets/js/core/animation.js && node --check frontend/assets/js/core/html.js && node --check frontend/assets/js/features/kana-ui.js && node --check frontend/assets/js/app.js && node --check frontend/assets/js/react-bits-layer.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "animejs": "^4.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

@@ -1,0 +1,247 @@
+@media (max-width:1100px){
+  .app-header{
+    grid-template-columns:1fr;
+    gap:.7rem;
+  }
+
+  .header-nav{
+    justify-content:flex-start;
+    overflow-x:auto;
+    padding-bottom:.2rem;
+    scrollbar-width:thin;
+  }
+
+  .header-stats{
+    justify-content:flex-start;
+    flex-wrap:wrap;
+  }
+
+  .dashboard-lead,
+  .grind-hero,
+  .builder-layout,
+  .guide-layout{
+    grid-template-columns:1fr;
+  }
+
+  .builder-output{
+    position:static;
+  }
+
+  .tool-grid,
+  .mode-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .level-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .level-grid::before{
+    display:none;
+  }
+
+  .level-tile:nth-child(even){
+    margin-top:0;
+  }
+
+  .particle-table{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:760px){
+  body{
+    background-size:100% 300px, 100% 340px, 20px 20px, 20px 20px;
+  }
+
+  .wrap{
+    width:min(100% - 22px, 1220px);
+    margin-top:14px;
+    margin-bottom:52px;
+  }
+
+  .app-header{
+    top:8px;
+    padding:.65rem;
+    box-shadow:4px 4px 0 var(--shadow), var(--glow-cyan);
+  }
+
+  .brand-mark{
+    width:48px;
+    height:48px;
+  }
+
+  .brand-mark img{
+    width:37px;
+    height:37px;
+  }
+
+  .header-nav{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    width:100%;
+    overflow:visible;
+  }
+
+  .nav-btn{
+    width:100%;
+    padding:.62rem .42rem;
+    text-align:center;
+  }
+
+  .page-title{
+    font-size:1.78rem;
+  }
+
+  .grind-hero{
+    min-height:auto;
+    padding:1rem;
+    box-shadow:4px 4px 0 var(--shadow), var(--glow-cyan);
+  }
+
+  .grind-hero .page-title{
+    max-width:100%;
+    font-size:2.12rem;
+  }
+
+  .hero-kana-burst{
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    width:100%;
+  }
+
+  .hero-kana-burst span{
+    height:50px;
+  }
+
+  .kana-hub-card,
+  .xp-card-head,
+  .section-head{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .hero-crest{
+    width:104px;
+    height:104px;
+  }
+
+  .grind-metrics,
+  .summary-strip,
+  .stat-row,
+  .tool-grid,
+  .mode-grid,
+  .quiz-options,
+  .rate-row,
+  .ach-grid,
+  .particle-table{
+    grid-template-columns:1fr;
+  }
+
+  .kana-hub-rings,
+  .showcase-rings{
+    width:100%;
+    justify-content:flex-start;
+  }
+
+  .session-bar{
+    grid-template-columns:1fr;
+    gap:.55rem;
+  }
+
+  .flip-stage{
+    min-height:390px;
+  }
+
+  .flip-card{
+    height:340px;
+  }
+
+  .term{
+    font-size:3.35rem;
+  }
+
+  .sentence-display{
+    font-size:2rem;
+  }
+
+  .phrase-prompt .term{
+    font-size:2.8rem;
+  }
+
+  .phrase-textarea{
+    font-size:1.1rem;
+  }
+}
+
+@media (max-width:520px){
+  .wrap{
+    width:min(100% - 16px, 1220px);
+  }
+
+  .app-header{
+    position:relative;
+    top:0;
+  }
+
+  .brand{
+    gap:.6rem;
+  }
+
+  .brand-jp{
+    font-size:1.22rem;
+  }
+
+  .brand-en,
+  .nav-btn,
+  .btn,
+  .eyebrow,
+  .rank-chip,
+  .tag,
+  .combo-badge,
+  .feedback-badge,
+  .slot-label,
+  .row-group-label,
+  .kana-ring,
+  .quest-reward,
+  .quest-check,
+  .xp-total,
+  .end-score{
+    font-size:.48rem;
+  }
+
+  .header-nav{
+    grid-template-columns:1fr;
+  }
+
+  .header-stats{
+    display:grid;
+    grid-template-columns:1fr;
+    width:100%;
+  }
+
+  .belt-chip,
+  .streak{
+    width:100%;
+    justify-content:flex-start;
+  }
+
+  .level-grid{
+    grid-template-columns:1fr;
+  }
+
+  .quest-list li{
+    grid-template-columns:auto minmax(0, 1fr);
+  }
+
+  .quest-xp{
+    grid-column:2;
+  }
+
+  .draw-stage{
+    background-size:32px 32px;
+  }
+
+  .tool-card{
+    min-height:146px;
+  }
+}
