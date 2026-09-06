@@ -7,8 +7,13 @@ import { BEGINNER_KANJI, EXPRESSIONS, PARTICLES, SENTENCES, COMBINATIONS } from 
 import { checkPhrase } from "./phraseService.js";
 import { readJson, sendJson } from "./http.js";
 
-export async function handleApi(req, res, pathname, storage) {
+export async function handleApi(req, res, pathname, storage, speech) {
   const userId = req.headers["x-maru-user"] || "default";
+  if (pathname === "/api/audio" && req.method === "POST") {
+    const body = await readJson(req);
+    if (typeof body.text !== "string" || body.text.length > 500) return sendJson(res, 400, { error: "Escolha um áudio do conteúdo de estudo." });
+    return sendJson(res, 200, await speech.prepare(body.text));
+  }
   if (pathname === "/api/health" && req.method === "GET") return sendJson(res, 200, { ok: true, name: "maru", version: 2 });
   if (pathname === "/api/content" && req.method === "GET") return sendJson(res, 200, {
     vocabulary: VOCABULARY, vocabularyGroups: VOCABULARY_GROUPS, exerciseGroups: EXERCISE_GROUPS, glossary: GLOSSARY,

@@ -1,0 +1,43 @@
+# APIs e créditos
+
+## Pronúncia: TTS Quest / VOICEVOX
+
+O Maru solicita a pronúncia quando o aluno toca no botão. O backend consulta
+`https://api.tts.quest/v3/voicevox/synthesis`, com a leitura ensinada e `speaker=3`.
+A resposta contém uma URL remota de streaming, reproduzida pelo navegador.
+Nenhum modelo de voz, MP3 ou gerador local faz parte do projeto.
+
+- Crédito da voz: **VOICEVOX:ずんだもん**.
+- [Documentação do provedor](https://github.com/ts-klassen/ttsQuestV3Voicevox).
+- [Modalidade pública sem chave](https://voicevox.su-shiki.com/su-shikiapis/ttsquest/).
+- [Termos VOICEVOX](https://voicevox.hiroshiba.jp/term/).
+- [Termos da biblioteca de voz](https://zunko.jp/con_ongen_kiyaku.html).
+
+É necessário acesso à internet. A modalidade pública pode impor espera entre
+consultas. O serviço respeita `retryAfter`, informa o intervalo e reutiliza URLs
+válidas por dez minutos. A disponibilidade da API não é controlada pelo Maru.
+
+Opcionalmente, defina `TTS_QUEST_API_KEY` no ambiente antes de iniciar o servidor.
+A chave permanece no backend. Só trechos do conteúdo de estudo são aceitos;
+frases livres digitadas pelo aluno não são enviadas ao provedor de voz.
+
+Os efeitos de acerto e conclusão do Arcade usam osciladores Web Audio no navegador.
+São opcionais, independentes da pronúncia e não criam arquivos.
+
+## Leituras de kanji: KanjiAPI
+
+`core/kanji.js` consulta `https://kanjiapi.dev/v1/kanji/{caractere}` ao abrir
+um cartão. São apresentados número de traços e leituras kun/on, com explicação
+em português. A API fornece dados textuais; não possui endpoint de áudio.
+
+O navegador guarda a consulta por 24 horas. `frontend/assets/data/kanji-api.json`
+é uma cópia das respostas dos 20 kanji introdutórios, consultados em 6/9/2026,
+usada apenas quando a API estiver indisponível. O arquivo registra a fonte e a data.
+
+- [Documentação e origem dos dados](https://github.com/onlyskin/kanjiapi.dev).
+- [KANJIDIC2 / EDRDG](https://www.edrdg.org/wiki/index.php/KANJIDIC_Project).
+- [Licença dos dados EDRDG](https://www.edrdg.org/edrdg/licence.html).
+
+As explicações, traduções em português e exercícios do Maru são autorais.
+Os traços de escrita continuam vindo de KanjiVG; os créditos estão na interface,
+nas folhas de impressão e em `frontend/assets/data/LICENSE.md`.

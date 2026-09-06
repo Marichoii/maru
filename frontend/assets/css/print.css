@@ -10,9 +10,12 @@
 .paper-row { margin: 0 0 16px; break-inside: avoid; }
 .paper-row-label { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; font-size: 9pt; }
 .paper-row-label strong { font-size: 12pt; }
-.paper-boxes { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); border-left: 1px solid #a8a8a8; }
-.paper-box { aspect-ratio: 1; border: 1px solid #a8a8a8; border-left: 0; position: relative; display: grid; place-items: center; background-image: linear-gradient(90deg,transparent 49.5%,#ddd 50%,transparent 50.5%),linear-gradient(transparent 49.5%,#ddd 50%,transparent 50.5%); }
-.paper-box svg { width: 100%; height: 100%; overflow: visible; }
+.paper-boxes { display: grid; grid-template-columns: repeat(9,minmax(0,1fr)); border-left: 1px solid #a8a8a8; }
+.paper-box { aspect-ratio: 1; border: 1px solid #a8a8a8; border-left: 0; position: relative; display: grid; place-items: center; background: #fff; }
+.paper-box::before, .paper-box::after { content: ""; position: absolute; pointer-events: none; }
+.paper-box::before { top: 50%; left: 0; right: 0; border-top: 1px dashed #d5d5d5; }
+.paper-box::after { left: 50%; top: 0; bottom: 0; border-left: 1px dashed #d5d5d5; }
+.paper-box svg { position: relative; z-index: 1; width: 100%; height: 100%; overflow: visible; }
 .paper-box path { fill: none; stroke: #222; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .paper-box text { fill: #444; font: 8px sans-serif; }
 .paper-box.ghost path { stroke: #ccc; }
@@ -37,11 +40,19 @@
   .paper-name { flex-direction: row; }
   .paper-header strong { font-size: 19pt; }
   .paper-header span { font-size: 9pt; }
-  .paper-box .jp { font-size: 32pt; }
-  .paper-row { margin-bottom: 18px; }
+  .paper-box .jp { font-size: 30pt; }
+  .paper-row { margin-bottom: 12px; }
+  .paper-instructions { margin-bottom: 14px; line-height: 1.55; }
+  .paper-header { margin-bottom: 12px; }
+  .paper-checklist { margin: 14px 0; }
+  .paper-box { background: white !important; background-image: none !important; }
   a[href]::after { content: none !important; }
 }
 
 .worksheet-preview { grid-template-columns: minmax(0,1fr); }
 .paper-row-label { flex-wrap: wrap; }
 .paper-name span { overflow-wrap: anywhere; }
+
+.paper-question { margin: 12px 0; }
+.paper-question .paper-practice-line { min-height: 22px; margin-top: 5px; }
+.paper-question .jp { font-size: 14pt; line-height: 1.4; }

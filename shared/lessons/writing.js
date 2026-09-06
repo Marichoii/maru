@@ -11,7 +11,7 @@ export const foundationLessons = [
     q("O que é romaji?", ["Outro nome para kanji", "A única escrita do Japão", "Japonês representado em letras latinas"], 2, "Romaji permite acompanhar a leitura enquanto você aprende os caracteres.")
   ]),
   l("sounds", "Ouça o ritmo do japonês", 5, "Identificar as cinco vogais e perceber que a duração dos sons importa.", [
-    s("Cinco vogais para começar", "A sequência japonesa é a, i, u, e, o. As vogais costumam ser curtas e estáveis. O u japonês tem os lábios menos arredondados que o u português. Use o áudio como apoio; a voz disponível depende do seu dispositivo.", [e("あ　い　う　え　お", "a · i · u · e · o", "As cinco vogais")]),
+    s("Cinco vogais para começar", "A sequência japonesa é a, i, u, e, o. As vogais costumam ser curtas e estáveis. O u japonês tem os lábios menos arredondados que o u português. Use o áudio como apoio e repita sem acrescentar sons. Depois tente reconhecer cada vogal sem olhar o romaji.", [e("あ　い　う　え　お", "a · i · u · e · o", "As cinco vogais")]),
     s("Dê tempo a cada unidade", "O japonês organiza o ritmo em unidades chamadas moras. Um kana simples costuma ocupar uma mora. O ん, o pequeno っ e o prolongamento de uma vogal também ocupam tempo. Em きゃ, os dois sinais formam uma única mora.", [e("おばさん", "obasan", "tia / mulher de meia-idade"), e("おばあさん", "obāsan", "avó / mulher idosa")], "Vogais longas mudam palavras. A barrinha em ā, ī, ū, ē, ō sinaliza uma vogal prolongada."),
     s("Apoio para a pronúncia", "Shi, chi e tsu representam し, ち e つ. O r de ra, ri, ru, re, ro é breve, próximo ao toque da língua em “caro”. Não acrescente uma vogal depois de ん.", [e("すし", "sushi", "sushi"), e("さくら", "sakura", "cerejeira")])
   ], [

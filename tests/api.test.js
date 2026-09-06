@@ -5,12 +5,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { createServer } from "../backend/server.js";
 import { createProgressStorage } from "../backend/storage.js";
-import { readFileSync } from "node:fs";
+
 
 test("API serves content, validates phrases and round-trips isolated progress", async t => {
   const directory = await mkdtemp(path.join(tmpdir(), "maru-api-test-"));
   const storage = createProgressStorage(directory);
-  const server = createServer({ storage });
+  const server = createServer({ storage, speech: { prepare: async text => ({ url: "https://audio1.tts.quest/v1/data/abc/audio.mp3s", attribution: "VOICEVOX:ずんだもん", text }) } });
   await new Promise((resolve, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolve); });
   t.after(async () => { await new Promise(resolve => server.close(resolve)); await rm(directory, { recursive: true, force: true }); });
   const base = "http://127.0.0.1:" + server.address().port;
@@ -36,22 +36,11 @@ test("API serves content, validates phrases and round-trips isolated progress", 
   assert.equal((await fetch(base + "/assets/no-such-file.js")).status, 404);
   assert.equal((await fetch(base + "/shared/%2e%2e%2fpackage.json")).status, 403);
   assert.equal((await fetch(base + "/assets/js/app.js")).headers.get("Content-Type"), "text/javascript; charset=utf-8");
-  const clips = JSON.parse(readFileSync(new URL("../frontend/assets/data/audio.json", import.meta.url))).clips;
-  const clip = clips["こんにちは"];
-  const fullAudio = await fetch(base + clip);
-  assert.equal(fullAudio.headers.get("Content-Type"), "audio/mpeg");
-  const fullBytes = Buffer.from(await fullAudio.arrayBuffer());
-  const part = await fetch(base + clip, { headers: { Range: "bytes=0-99" } });
-  assert.equal(part.status, 206);
-  assert.equal(part.headers.get("Content-Range"), "bytes 0-99/" + fullBytes.length);
-  assert.deepEqual(Buffer.from(await part.arrayBuffer()), fullBytes.subarray(0,100));
-  const suffix = await fetch(base + clip, { headers: { Range: "bytes=-100" } });
-  assert.equal(suffix.status, 206);
-  assert.deepEqual(Buffer.from(await suffix.arrayBuffer()), fullBytes.subarray(-100));
-  assert.equal((await fetch(base + clip, { headers: { Range: "bytes=9999999-" } })).status, 416);
-  const head = await fetch(base + clip, { method: "HEAD" });
-  assert.equal(Number(head.headers.get("Content-Length")), fullBytes.length);
-  assert.equal((await head.arrayBuffer()).byteLength, 0);
+  const audio = await fetch(base + "/api/audio", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({text:"こんにちは"}) });
+  assert.equal(audio.status,200);
+  assert.equal((await audio.json()).attribution,"VOICEVOX:ずんだもん");
+  assert.equal((await fetch(base+"/api/audio",{method:"POST",body:JSON.stringify({text:42})})).status,400);
+  assert.equal((await fetch(base+"/api/audio",{method:"POST",body:JSON.stringify({text:"あ".repeat(501)})})).status,400);
   await Promise.all([storage.write({ xp: { total: 1 } }, "race"), storage.write({ xp: { total: 2 } }, "race")]);
   assert.equal((await storage.read("race")).xp.total, 2);
 });

@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync, statSync } from "node:fs";
-import { audioCatalog } from "../scripts/audio-catalog.js";
+import { pronunciationCatalog, getPronunciation } from "../shared/pronunciation.js";
 import { audioKey } from "../shared/audioText.js";
 import { VOCABULARY } from "../shared/vocabulary.js";
 import { GLOSSARY, conceptsIn } from "../shared/glossary.js";
@@ -74,18 +73,14 @@ test("expanded sentence models accept the kana reading and reject wrong particle
   assert.equal(checkGuidedSentence("ate","昨日パンを食べます").correct,false);
 });
 
-test("all study pronunciations resolve to nonempty local MP3s, including listening activities", () => {
-  const manifest=JSON.parse(readFileSync(new URL("../frontend/assets/data/audio.json",import.meta.url)));
-  const entries=audioCatalog();
-  assert.equal(Object.keys(manifest.clips).length,entries.length);
-  for(const entry of entries){
-    const url=manifest.clips[entry.key];
-    assert.equal(url,"/assets/audio/"+entry.file,entry.text);
-    const file=new URL("../frontend"+url,import.meta.url);
-    assert.ok(statSync(file).size>1000,entry.text);
-    const data=readFileSync(file);
-    assert.equal(data.subarray(0,3).toString(),"ID3",entry.text);
-  }
-  for(const item of EXERCISE_GROUPS.flatMap(group=>group.items))assert.ok(manifest.clips[audioKey(item.speech)],item.id);
+test("all study pronunciations have context-appropriate text for the voice API", () => {
+  const entries=pronunciationCatalog();
+  assert.ok(entries.length>=680);
+  assert.equal(new Set(entries.map(item=>item.key)).size,entries.length);
+  assert.equal(getPronunciation("水").spoken,"みず");
+  assert.equal(getPronunciation("日").spoken,"ひ");
+  assert.equal(getPronunciation("を").spoken,"お");
+  for(const item of EXERCISE_GROUPS.flatMap(group=>group.items))assert.ok(getPronunciation(item.speech),item.id);
   assert.equal(audioKey("こんにちは。"),audioKey("こんにちは"));
+  assert.equal(getPronunciation("texto livre não autorizado"),undefined);
 });

@@ -2,6 +2,16 @@ import { test, expect } from "@playwright/test";
 import { LISTENING_EXERCISES, PARTICLE_EXERCISES } from "../../shared/exercises.js";
 import { VOCABULARY } from "../../shared/vocabulary.js";
 
+// Exercise browser playback deterministically without consuming a public API quota.
+// The real service is also checked separately against its remote streaming URL.
+const testWave=Buffer.alloc(44+48000);
+testWave.write("RIFF",0);testWave.writeUInt32LE(testWave.length-8,4);testWave.write("WAVEfmt ",8);testWave.writeUInt32LE(16,16);testWave.writeUInt16LE(1,20);testWave.writeUInt16LE(1,22);testWave.writeUInt32LE(24000,24);testWave.writeUInt32LE(48000,28);testWave.writeUInt16LE(2,32);testWave.writeUInt16LE(16,34);testWave.write("data",36);testWave.writeUInt32LE(48000,40);
+for(let i=0;i<24000;i++)testWave.writeInt16LE(Math.round(1500*Math.sin(2*Math.PI*440*i/24000)),44+i*2);
+test.beforeEach(async({page})=>{
+  await page.route("**/api/audio",route=>route.fulfill({json:{url:"https://audio1.tts.quest/v1/data/abc123/audio.mp3s",expiresAt:Date.now()+600000,attribution:"VOICEVOX:ずんだもん"}}));
+  await page.route("https://audio1.tts.quest/**",route=>route.fulfill({contentType:"audio/wav",body:testWave}));
+});
+
 async function go(page, route) {
   await page.goto("/#/"+route);
   await expect(page.locator("main h1")).toBeVisible();
@@ -30,7 +40,7 @@ test("theme switching keeps the active answer, persists and updates both selecto
   await expect(page.locator('.sidebar [data-theme-choice="dojo"]')).toHaveAttribute("aria-pressed","true");
 });
 
-test("local pronunciation plays with no installed voices, respects speed and stops on toggle",async({page})=>{
+test("API pronunciation plays with no installed voices, respects speed and stops on toggle",async({page})=>{
   await page.addInitScript(()=>{
     Object.defineProperty(window,"speechSynthesis",{value:undefined,configurable:true});
     const OriginalAudio=window.Audio;
@@ -46,7 +56,7 @@ test("local pronunciation plays with no installed voices, respects speed and sto
   await expect(button).toHaveAttribute("aria-pressed","true");
   await expect.poll(()=>page.evaluate(()=>window.lastAudio?.currentTime || 0)).toBeGreaterThan(0);
   expect(await page.evaluate(()=>window.lastAudio.playbackRate)).toBe(.75);
-  expect(await page.evaluate(()=>window.lastAudio.currentSrc)).toContain("/assets/audio/");
+  expect(await page.evaluate(()=>window.lastAudio.currentSrc)).toContain("tts.quest");
   await button.click();
   await expect(button).toHaveAttribute("aria-pressed","false");
   expect(await page.evaluate(()=>window.lastAudio.paused)).toBe(true);
@@ -110,7 +120,8 @@ test("A4 sheets have numbered strokes, separate answers and usable print output 
   await page.addInitScript(()=>{window.printCalls=0;window.print=()=>window.printCalls++;});
   await go(page,"worksheets");
   await expect(page.locator("#print-worksheet")).toBeEnabled();
-  await expect(page.locator(".print-sheet")).toHaveCount(2);
+  await expect(page.locator(".print-sheet")).toHaveCount(1);
+  await expect(page.locator(".paper-row")).toHaveCount(5);
   await expect(page.locator(".model svg text").first()).toHaveText("1");
   await page.locator("#print-worksheet").click();
   await expect.poll(()=>page.evaluate(()=>window.printCalls)).toBe(1);
@@ -120,7 +131,7 @@ test("A4 sheets have numbered strokes, separate answers and usable print output 
   await expect(page.locator(".topbar")).toBeHidden();
   expect(await page.locator(".print-sheet").first().evaluate(element=>getComputedStyle(element).backgroundColor)).toBe("rgb(255, 255, 255)");
   const pdf=await page.pdf({path:testInfo.outputPath("hiragana-a4.pdf"),preferCSSPageSize:true,printBackground:true});
-  expect((pdf.toString("latin1").match(/\/Type\s*\/Page\b/g)||[]).length).toBe(2);
+  expect((pdf.toString("latin1").match(/\/Type\s*\/Page\b/g)||[]).length).toBe(1);
   await page.emulateMedia({media:"screen"});
   await page.locator("#worksheet-kind").selectOption("sentences");
   await expect(page.locator(".print-sheet")).toHaveCount(2);
@@ -159,10 +170,39 @@ test("new screens and arcade layouts fit desktop, tablet and small phones",async
       const routes=theme==="arcade"?["home","journey","kana","kanji","writing","sentences","particles","expressions","library","review","settings","lesson/welcome","vocabulary","exercises","worksheets","glossary"]:["vocabulary","exercises","worksheets","glossary","settings"];
       for(const route of routes){
         await go(page,route);
+        expect(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),theme+" colors at "+width).toBe(theme==="arcade"?"rgb(5, 7, 19)":"rgb(248, 247, 243)");
         expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),theme+" "+route+" at "+width).toBe(false);
       }
     }
     await page.setViewportSize({width:1440,height:1000});
   }
   expect(errors).toEqual([]);
+});
+
+test("voice API failures explain the interruption and leave the button usable",async({page})=>{
+  await page.route("**/api/audio",route=>route.fulfill({status:429,json:{error:"A API de voz pediu um intervalo. Tente novamente em 10 segundos.",retryAfter:10}}));
+  await go(page,"settings");
+  const button=page.getByRole("button",{name:"Testar pronúncia japonesa"});
+  await button.click();
+  await expect(page.locator("#toast")).toContainText("10 segundos");
+  await expect(button).toHaveAttribute("aria-busy","false");
+  await expect(button).toBeEnabled();
+});
+
+test("KanjiAPI readings load on expansion and remain usable if the provider is offline",async({page})=>{
+  let calls=0;
+  await page.route("https://kanjiapi.dev/v1/kanji/**",route=>{calls++;return route.fulfill({json:{kanji:"水",stroke_count:4,kun_readings:["みず"],on_readings:["スイ"],meanings:["water"]}});});
+  await go(page,"kanji");
+  const card=page.locator('[data-kanji="水"]');
+  await card.locator("summary").click();
+  await expect(card.locator(".kanji-api-details")).toContainText("スイ");
+  await expect(card.locator(".kanji-api-details")).toContainText("4 traços");
+  expect(calls).toBe(1);
+  await page.reload();await card.locator("summary").click();
+  await expect(card.locator(".kanji-api-details")).toContainText("スイ");
+  expect(calls).toBe(1);
+  await page.route("https://kanjiapi.dev/v1/kanji/**",route=>route.abort());
+  const fire=page.locator('[data-kanji="火"]');await fire.locator("summary").click();
+  await expect(fire.locator(".kanji-api-details")).toContainText("Consulta salva da KanjiAPI");
+  await expect(fire.locator(".kanji-api-details")).toContainText("4 traços");
 });

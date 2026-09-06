@@ -11,6 +11,9 @@ JavaScript nativo e CSS dão conta da aplicação sem build obrigatório.
 | `shared/lessons/` | Texto das lições, exemplos, objetivos e perguntas. |
 | `shared/curriculum.js` | Ordem das oito etapas, índice de lições e referências. |
 | `shared/catalog.js` | Combinações, kanji iniciais, partículas, expressões e frases. |
+| `shared/vocabulary.js`, `glossary.js`, `exercises.js` | Vocabulário inicial, conceitos e perguntas por tipo. |
+| `shared/pronunciation.js` | Texto e leitura correta das pronúncias aceitas pela API. |
+| `shared/gamification.js` | Níveis, missões e conquistas derivados do progresso. |
 | `shared/content.js` | Kana básicos e acervo complementar preservado. |
 | `shared/progress.js` | Normalização, migração, mesclagem, XP, constância e revisão. |
 | `shared/sentenceCheck.js` | Verificação de exercícios conhecidos, reutilizada offline. |
@@ -48,7 +51,9 @@ inativas recebem inert; foco e Escape são tratados pelo shell.
 - Writing: modelos, animação e canvas.
 - Sentences: blocos e digitação para situações específicas.
 - Reference: kanji, partículas, expressões, biblioteca e revisão.
-- Settings: romaji, meta diária e indicadores.
+- Study: palavras por tema, exercícios, escuta e glossário.
+- Worksheets: folhas A4 de caracteres, palavras e frases com gabaritos opcionais.
+- Settings: modo visual, áudio, romaji, meta diária, indicadores e conquistas.
 
 ## Persistência
 
@@ -92,8 +97,15 @@ leituras em kana e formas de romaji previstas. Divergência significa “diferen
 do modelo”, não “gramaticalmente impossível”. O mesmo código funciona localmente.
 O formato legado com item permanece, sem dar notas artificiais a frases livres.
 
-O áudio usa SpeechSynthesis com uma voz ja do dispositivo. Sem uma voz adequada,
-informa a indisponibilidade em vez de usar outra língua.
+O áudio usa `POST /api/audio`. `speechService.js` valida o texto contra o catálogo
+de estudo, consulta TTS Quest e devolve uma URL de streaming. Só URLs expiráveis
+ficam em memória; o servidor e o frontend não escrevem áudio no disco. O player
+cancela requisições e reprodução ao navegar, respeita a velocidade escolhida e
+trata falhas, limites da API e bloqueio de reprodução automática.
+
+`core/kanji.js` consulta KanjiAPI ao abrir um caractere. Valida campos, compartilha
+requisições simultâneas, mantém cache de 24 horas e usa a cópia dos 20 caracteres
+se a rede falhar. As explicações e traduções em português continuam sendo autorais.
 
 `frontend/assets/data/strokes.json` contém os caminhos em ordem extraídos de
 KanjiVG: 142 kana e 20 kanji. A atualização é manual:
@@ -113,9 +125,14 @@ A folha anterior foi substituída integralmente:
 - layout.css: shell, navegação, cabeçalhos e rodapé;
 - components.css: botões, campos, exemplos e feedback;
 - screens.css: composição de cada tela;
-- responsive.css: desktop, tablet e celular.
+- themes/arcade.css: variantes do modo Arcade, condicionadas por data-theme;
+- responsive.css: desktop, tablet e celular, com prioridade sobre o tema;
+- learning.css: vocabulário, exercícios, temas, missões e conquistas;
+- print.css: papel A4, grades sem degradê e paginação independente do tema.
 
-O visual usa papel claro, tons naturais e vermelho. Fontes externas têm
+Dojo usa papel claro, tons naturais e vermelho. Arcade usa pixels e neon.
+Os seletores de Arcade usam `:where()` para não impedir os ajustes de responsividade.
+A troca atualiza tokens sem reconstruir o DOM da atividade. Fontes externas têm
 fallbacks locais. React, Motion e Anime.js foram removidos; as animações de
 traços usam a Web Animations API.
 
@@ -128,8 +145,10 @@ traços usam a Web Animations API.
 | GET | /api/progress | Snapshot normalizado. |
 | PUT / POST | /api/progress | Persistência de snapshot. |
 | POST | /api/phrase/check | Comparação com o modelo de uma atividade. |
+| POST | /api/audio | URL de reprodução remota de uma pronúncia do catálogo. |
 
-O header x-maru-user separa perfis de desenvolvimento e não autentica ninguém.
+O navegador envia seu perfil anônimo em x-maru-user; isso separa a persistência
+e não autentica ninguém.
 JSON inválido retorna 400; corpo excessivo, 413; caminhos inexistentes, 404.
 
 ## Verificação
@@ -142,3 +161,7 @@ API e gravações concorrentes.
 erros, kana digitado, frases, escrita, filtros, revisão, fallback local,
 histórico e teclado. As telas são verificadas em 320, 390, 768 e 1440 pixels
 com captura dos erros do navegador.
+
+Os testes de voz usam respostas controladas e áudio em memória para não consumir
+a cota pública. Uma verificação separada confirmou reprodução real do streaming
+TTS Quest. PDFs são gerados no teste e conferidos por número de páginas.

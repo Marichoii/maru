@@ -6,14 +6,14 @@ tradução. A progressão é recomendada, sem bloqueios artificiais.
 
 | Etapa | Lições | Resultado esperado |
 | --- | --- | --- |
-| Primeiros passos | 3 | Reconhecer as escritas, perceber sons e cumprimentar. |
-| Hiragana | 4 | Ler fileiras, marcas e combinações; iniciar escrita. |
-| Katakana | 3 | Reconhecer empréstimos, formas parecidas e vogais longas. |
-| Primeiros kanji | 3 | Relacionar significado, leitura em palavras e traços. |
-| Construir frases | 3 | Apresentar-se, perguntar, negar e expressar ações. |
-| Partículas | 3 | Identificar tópico, sujeito, objeto, lugar e relações. |
-| Dia a dia | 3 | Pedir itens, encontrar lugares e pedir ajuda na conversa. |
-| Além dos livros | 3 | Entender registro, gírias e expressões de comunidades. |
+| Primeiros passos | 5 | Reconhecer as escritas, perceber sons e cumprimentar. |
+| Hiragana | 5 | Ler fileiras, marcas e combinações; iniciar escrita. |
+| Katakana | 4 | Reconhecer empréstimos, formas parecidas e vogais longas. |
+| Primeiros kanji | 4 | Relacionar significado, leitura em palavras e traços. |
+| Construir frases | 5 | Apresentar-se, perguntar, negar e expressar ações. |
+| Partículas | 4 | Identificar tópico, sujeito, objeto, lugar e relações. |
+| Dia a dia | 5 | Pedir itens, encontrar lugares e pedir ajuda na conversa. |
+| Além dos livros | 5 | Entender registro, gírias e expressões de comunidades. |
 
 ## Critérios editoriais
 
@@ -64,3 +64,24 @@ afiliação ou aprovação do Maru por essas organizações.
 Os 120 itens anteriores foram mantidos como consulta complementar. Suas
 etiquetas de nível são orientativas. Gírias e jargões variam por comunidade,
 época e relação; a seleção não pretende cobrir todas as variações.
+
+## Atividades e explicações
+
+O vocabulário inicial contém 64 palavras em oito temas. Cada palavra recebe
+leitura em kana, romaji, tradução e uma frase contextualizada. O glossário
+define 26 conceitos e é ligado às seções das lições por termos presentes no texto.
+
+Os 32 modelos de frases usam tokens com texto, romaji, função e leitura em kana.
+As atividades de partículas sempre indicam a intenção pedida, evitando tratar
+como erro absoluto uma alternativa possível em outro contexto. Gírias incluem
+situação, grau de informalidade e alternativas educadas quando cabíveis.
+
+As folhas de caracteres comportam cinco itens por página. As cinco vogais de
+um silabário devem sempre caber juntas. As linhas da grade são bordas tracejadas,
+sem degradês, para evitar artefatos em PDF. O gabarito de palavras e frases é
+separado e opcional; o aluno pode esconder os modelos para praticar a lembrança.
+
+Pronúncias novas entram automaticamente no catálogo textual quando fazem parte
+dos exemplos. Para caracteres ou palavras com leitura ambígua, informe a leitura
+ensinada. A API sintetiza apenas a solicitação do aluno: não há geração em lote
+nem arquivos de áudio no projeto.

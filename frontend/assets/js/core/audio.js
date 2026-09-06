@@ -1,9 +1,8 @@
 import { audioKey } from "/shared/audioText.js";
 
 export function createAudio(toast, preferences = () => ({})) {
-  let sequence = 0, media = null, activeButton = null, utterance = null, effectContext = null;
-  const manifest = fetch("/assets/data/audio.json", { signal: AbortSignal.timeout(5000) })
-    .then(response => response.ok ? response.json() : { clips: {} }).then(data => data.clips || {}).catch(() => ({}));
+  let sequence = 0, media = null, activeButton = null, requestController = null, effectContext = null, playbackTimer = null;
+  const cache = new Map();
   const mark = (button, state) => {
     if (!button) return;
     button.classList.toggle("is-loading", state === "loading");
@@ -13,63 +12,49 @@ export function createAudio(toast, preferences = () => ({})) {
   };
   function stop() {
     sequence++;
+    requestController?.abort(); requestController = null;
+    clearTimeout(playbackTimer); playbackTimer = null;
     if (media) { media.pause(); media.removeAttribute("src"); media.load(); media = null; }
-    window.speechSynthesis?.cancel();
-    utterance = null;
     mark(activeButton, "idle"); activeButton = null;
   }
-  async function japaneseVoice() {
-    const synth = window.speechSynthesis;
-    if (!synth) return null;
-    const find = () => synth.getVoices().find(voice => /^ja(?:[-_]|$)/i.test(voice.lang));
-    if (find()) return find();
-    return new Promise(resolve => {
-      let timer;
-      const finish = () => { clearTimeout(timer); synth.removeEventListener("voiceschanged", finish); resolve(find() || null); };
-      timer = setTimeout(finish, 1500);
-      synth.addEventListener("voiceschanged", finish);
-    });
+  async function prepare(text, signal) {
+    const key=audioKey(text), cached=cache.get(key);
+    if(cached?.expiresAt>Date.now())return cached;
+    const response=await fetch("/api/audio",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({text}),signal});
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.error || "A pronúncia está indisponível. Tente novamente.");
+    cache.set(key,data);
+    return data;
   }
   async function speak(text, button = null) {
     if (button && activeButton === button) { stop(); return; }
     stop();
-    const request = sequence;
-    activeButton = button; mark(button, "loading");
-    const rate = preferences().audioRate || 1;
-    const done = () => { if (request === sequence) { mark(button, "idle"); activeButton = null; } };
-    const fallback = async () => {
-      const voice = await japaneseVoice();
-      if (request !== sequence) return;
-      if (!voice || !window.SpeechSynthesisUtterance) {
-        done(); toast("Não foi possível tocar este áudio. Confira sua conexão com o site e tente novamente."); return;
-      }
-      utterance = new SpeechSynthesisUtterance(String(text));
-      utterance.voice = voice; utterance.lang = "ja-JP"; utterance.rate = .85 * rate;
-      utterance.onstart = () => { if (request === sequence) mark(button, "playing"); };
-      utterance.onend = done;
-      utterance.onerror = event => { done(); if (request === sequence && !["canceled","interrupted"].includes(event.error)) toast("O navegador interrompeu o áudio. Toque em ouvir para tentar novamente."); };
-      window.speechSynthesis.speak(utterance);
-    };
-    const clips = await manifest;
-    if (request !== sequence) return;
-    const source = clips[audioKey(text)];
-    if (!source) { await fallback(); return; }
-    const player = new Audio(source);
-    media = player;
-    player.preload = "auto";
-    player.playbackRate = rate;
-    player.preservesPitch = true;
-    player.addEventListener("ended", done, { once: true });
-    let recovered = false;
-    const recover = async error => {
-      if (recovered || request !== sequence) return;
-      recovered = true;
-      if (error?.name === "NotAllowedError") { done(); toast("Toque em ouvir novamente para permitir a reprodução no navegador."); }
-      else await fallback();
-    };
-    player.addEventListener("error", () => { void recover(); }, { once: true });
-    try { await player.play(); if (request === sequence) mark(button, "playing"); }
-    catch (error) { await recover(error); }
+    const request=sequence;
+    requestController=new AbortController();
+    activeButton=button;mark(button,"loading");
+    const done=()=>{if(request===sequence){clearTimeout(playbackTimer);mark(button,"idle");activeButton=null;}};
+    const fail=message=>{if(request!==sequence)return;done();toast(message);};
+    const player=new Audio();
+    media=player;
+    player.preload="auto";
+    player.playbackRate=preferences().audioRate || 1;
+    player.preservesPitch=true;
+    player.addEventListener("playing",()=>{if(request===sequence){clearTimeout(playbackTimer);mark(button,"playing");}},{once:true});
+    player.addEventListener("ended",done,{once:true});
+    player.addEventListener("error",()=>{cache.delete(audioKey(text));fail("A API não conseguiu reproduzir este áudio. Toque novamente para tentar.");},{once:true});
+    playbackTimer=setTimeout(()=>{if(request===sequence){stop();toast("A pronúncia está demorando para ficar pronta. Tente ouvir novamente em alguns instantes.");}},30000);
+    try{
+      const data=await prepare(text,requestController.signal);
+      if(request!==sequence)return;
+      player.src=data.url;
+      player.defaultPlaybackRate=preferences().audioRate || 1;
+      player.playbackRate=player.defaultPlaybackRate;
+      await player.play();
+    }catch(error){
+      if(request!==sequence || error.name==="AbortError")return;
+      if(error.name==="NotAllowedError")fail("Áudio pronto. Toque em ouvir novamente para iniciar a reprodução.");
+      else fail(error.message || "Não foi possível conectar à API de voz.");
+    }
   }
   function feedback(kind) {
     const prefs = preferences();
