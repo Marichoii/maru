@@ -11,6 +11,8 @@ import { renderSentences } from "./features/sentences.js";
 import { renderKanji, renderParticles, renderExpressions, renderLibrary, renderReview, addToReview } from "./features/reference.js";
 import { renderSettings } from "./features/settings.js";
 import { emptyState, routeLink } from "./core/ui.js";
+import { applyTheme, themeSwitcher } from "./core/theme.js";
+import { playerLevel, ACHIEVEMENTS } from "/shared/gamification.js";
 
 const app = document.querySelector("#app");
 let toastTimer;
@@ -29,7 +31,8 @@ function updateStatus(value) {
   if (element) { element.textContent = statusLabels[status]; element.dataset.status = status; }
 }
 const store = await createStore(updateStatus);
-const audio = createAudio(toast);
+const audio = createAudio(toast, () => store.snapshot.preferences);
+applyTheme(store.snapshot.preferences.theme);
 const navigation = [
   { label: "", items: [["home", "home", "Meu aprendizado"]] },
   { label: "APRENDER", items: [["journey", "path", "Minha trilha"], ["kana", "あ", "Hiragana & katakana"], ["kanji", "日", "Primeiros kanji"]] },
@@ -42,10 +45,10 @@ app.innerHTML = `
   <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Fechar navegação" hidden></button>
   <aside class="sidebar" id="sidebar"><a class="brand" href="#/home" aria-label="Maru, meu aprendizado"><img src="/assets/img/maru-crest.svg" alt="" width="38" height="38"><span>maru<span class="brand-period">.</span><small>JAPONÊS, PASSO A PASSO</small></span></a>
     <nav aria-label="Navegação principal">${navigation.map(group => `<div class="nav-group">${group.label ? `<p class="nav-label">${group.label}</p>` : ""}${group.items.map(([route, symbol, label]) => `<a class="nav-link" href="#/${route}" data-nav="${route}">${["あ", "日"].includes(symbol) ? `<span class="nav-kana jp" aria-hidden="true">${symbol}</span>` : icon(symbol)}<span>${label}</span>${route === "review" ? '<span class="nav-count" id="review-count" hidden></span>' : ""}</a>`).join("")}</div>`).join("")}</nav>
-    <div class="sidebar-bottom"><div class="sidebar-message"><span lang="ja">少しずつ</span><p>Um pouquinho por dia.<br>Um mundo de descobertas.</p></div><a class="profile-link" href="#/settings" data-nav="settings"><span class="profile-avatar">M</span><span><strong>Meu ritmo</strong><small id="save-status">${statusLabels[status]}</small></span>${icon("settings")}</a></div>
+    <div class="sidebar-bottom">${themeSwitcher()}<div class="sidebar-message"><span lang="ja">少しずつ</span><p>Um pouquinho por dia.<br>Um mundo de descobertas.</p></div><a class="profile-link" href="#/settings" data-nav="settings"><span class="profile-avatar">M</span><span><strong>Meu ritmo</strong><small id="save-status">${statusLabels[status]}</small></span>${icon("settings")}</a></div>
   </aside>
   <div class="app-body"><header class="topbar"><div class="topbar-location"><button class="icon-button menu-button" id="menu-button" aria-label="Abrir navegação" aria-expanded="false" aria-controls="sidebar">${icon("menu")}</button><span>Seu espaço</span>${icon("chevron")}<strong id="current-location">Meu aprendizado</strong></div><div class="topbar-stats"><span class="topbar-streak">${icon("fire")}<strong id="streak-count">0 dias</strong></span><span class="topbar-divider"></span><span class="xp-label">${icon("spark")}<strong id="xp-total">0 XP</strong></span><a href="#/settings" class="topbar-avatar" aria-label="Ajustar meu ritmo">M</a></div></header>
-  <main id="main" class="main-content" tabindex="-1"></main><footer class="app-footer"><a href="#/home">maru.</a><span>Aprender é abrir espaço para um novo mundo.</span><a href="#/library">Recursos & referências ${icon("external")}</a></footer></div>
+  <div id="arcade-hud" class="arcade-only arcade-hud" aria-label="Seu nível de experiência"></div><main id="main" class="main-content" tabindex="-1"></main><footer class="app-footer"><a href="#/home">maru.</a><span>Aprender é abrir espaço para um novo mundo.</span><a href="#/library">Recursos & referências ${icon("external")}</a></footer></div>
 `;
 const main = document.querySelector("#main");
 let cleanup;
@@ -54,6 +57,7 @@ const ctx = {
   main, toast, audio,
   get progress() { return store.snapshot; },
   save() { store.save(); updateStats(); },
+  setTheme(theme) { store.snapshot.preferences.theme = theme; applyTheme(theme); store.save(); updateStats(); },
   navigate(route, params = null) {
     routeParams = params;
     const hash = "#/" + route;
@@ -67,6 +71,8 @@ function updateStats() {
   const streak = currentStreak(ctx.progress);
   document.querySelector("#streak-count").textContent = streak + (streak === 1 ? " dia" : " dias");
   document.querySelector("#xp-total").textContent = ctx.progress.xp.total + " XP";
+  const level = playerLevel(ctx.progress.xp.total);
+  document.querySelector("#arcade-hud").innerHTML = '<span>PLAYER 01</span><strong>LV. ' + String(level.level).padStart(2, '0') + '</strong><div class="hud-track"><span style="width:' + level.percent + '%"></span></div><span>' + level.earned + ' / ' + level.needed + ' XP</span><span class="hud-badges">' + ACHIEVEMENTS.filter(item => item.test(ctx.progress)).length + ' / ' + ACHIEVEMENTS.length + ' CONQUISTAS</span>';
   updateStatus(status);
 }
 function setMenu(open) {
@@ -124,8 +130,10 @@ document.addEventListener("keydown", event => {
   }
 });
 document.addEventListener("click", event => {
+  const theme = event.target.closest("[data-theme-choice]");
+  if (theme) { ctx.setTheme(theme.dataset.themeChoice); toast("Modo " + (theme.dataset.themeChoice === "arcade" ? "Arcade" : "Dojo") + " ativado. Seu progresso continua o mesmo."); }
   const speaker = event.target.closest("[data-speak]");
-  if (speaker) { event.preventDefault(); audio.speak(speaker.dataset.speak); }
+  if (speaker) { event.preventDefault(); audio.speak(speaker.dataset.speak, speaker); }
   const review = event.target.closest("[data-add-review]");
   if (review) addToReview(ctx, review);
   const link = event.target.closest('a[href^="#/"]');
@@ -133,4 +141,5 @@ document.addEventListener("click", event => {
 });
 document.querySelector(".skip-link").addEventListener("click", event => { event.preventDefault(); main.focus(); });
 window.addEventListener("hashchange", render);
+applyTheme(store.snapshot.preferences.theme);
 render();

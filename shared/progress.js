@@ -23,12 +23,18 @@ export function normalizeSnapshot(input = {}) {
     progress: mapRecords(source.progress, item => ({ ef: Math.max(1.3, Number(item.ef) || 2.5), interval: count(item.interval), reps: count(item.reps), due: dateValue(item.due) })),
     streak: { count: count(source.streak?.count), lastDate: typeof source.streak?.lastDate === "string" ? source.streak.lastDate.slice(0, 10) : "" },
     xp: { total: count(source.xp?.total) },
-    stats: { sentencesWritten: count(source.stats?.sentencesWritten), focusSessions: count(source.stats?.focusSessions) },
+    stats: { sentencesWritten: count(source.stats?.sentencesWritten), focusSessions: count(source.stats?.focusSessions), writingSessions: count(source.stats?.writingSessions) },
     kanaStats: mapRecords(source.kanaStats, item => ({ attempts: count(item.attempts), wrong: count(item.wrong), streak: count(item.streak), updatedAt: dateValue(item.updatedAt) })),
     lessons: mapRecords(source.lessons, item => ({ completedAt: dateValue(item.completedAt), score: count(item.score) })),
     reviews: mapRecords(reviews, item => ({ due: dateValue(item.due), interval: count(item.interval), attempts: count(item.attempts), correct: count(item.correct), streak: count(item.streak), updatedAt: dateValue(item.updatedAt) })),
     activity: Object.fromEntries(Object.entries(record(source.activity)).filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(key)).slice(-730).map(([key, value]) => [key, count(value)])),
-    preferences: { romaji: source.preferences?.romaji !== false, dailyGoal: [5, 10, 15].includes(source.preferences?.dailyGoal) ? source.preferences.dailyGoal : 5 }
+    preferences: {
+      romaji: source.preferences?.romaji !== false,
+      dailyGoal: [5, 10, 15].includes(source.preferences?.dailyGoal) ? source.preferences.dailyGoal : 5,
+      theme: source.preferences?.theme === "arcade" ? "arcade" : "dojo",
+      soundEffects: source.preferences?.soundEffects !== false,
+      audioRate: [0.75, 1, 1.15].includes(source.preferences?.audioRate) ? source.preferences.audioRate : 1
+    }
   };
 }
 
@@ -44,7 +50,7 @@ export function mergeSnapshots(local, remote) {
     ...recent,
     progress: { ...(recent === a ? b.progress : a.progress), ...recent.progress },
     xp: { total: Math.max(a.xp.total, b.xp.total) },
-    stats: { sentencesWritten: Math.max(a.stats.sentencesWritten, b.stats.sentencesWritten), focusSessions: Math.max(a.stats.focusSessions, b.stats.focusSessions) },
+    stats: { sentencesWritten: Math.max(a.stats.sentencesWritten, b.stats.sentencesWritten), focusSessions: Math.max(a.stats.focusSessions, b.stats.focusSessions), writingSessions: Math.max(a.stats.writingSessions, b.stats.writingSessions) },
     streak: a.streak.lastDate >= b.streak.lastDate ? a.streak : b.streak,
     lessons: mergeRecords("lessons", "completedAt"),
     reviews: mergeRecords("reviews", "updatedAt"),

@@ -4,3 +4,6 @@
 @import "./components.css";
 @import "./screens.css";
 @import "./responsive.css";
+@import "./themes/arcade.css";
+@import "./learning.css";
+@import "./print.css";
