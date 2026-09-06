@@ -40,7 +40,7 @@ const titles = Object.fromEntries(navigation.flatMap(group => group.items.map(([
 titles.settings = "Meu ritmo"; titles.lesson = "Minha trilha";
 app.innerHTML = `
   <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Fechar navegação" hidden></button>
-  <aside class="sidebar" id="sidebar"><a class="brand" href="#/home" aria-label="Maru, meu aprendizado"><img src="/assets/img/maru-mark.svg" alt="" width="38" height="38"><span>maru<span class="brand-period">.</span><small>JAPONÊS, PASSO A PASSO</small></span></a>
+  <aside class="sidebar" id="sidebar"><a class="brand" href="#/home" aria-label="Maru, meu aprendizado"><img src="/assets/img/maru-crest.svg" alt="" width="38" height="38"><span>maru<span class="brand-period">.</span><small>JAPONÊS, PASSO A PASSO</small></span></a>
     <nav aria-label="Navegação principal">${navigation.map(group => `<div class="nav-group">${group.label ? `<p class="nav-label">${group.label}</p>` : ""}${group.items.map(([route, symbol, label]) => `<a class="nav-link" href="#/${route}" data-nav="${route}">${["あ", "日"].includes(symbol) ? `<span class="nav-kana jp" aria-hidden="true">${symbol}</span>` : icon(symbol)}<span>${label}</span>${route === "review" ? '<span class="nav-count" id="review-count" hidden></span>' : ""}</a>`).join("")}</div>`).join("")}</nav>
     <div class="sidebar-bottom"><div class="sidebar-message"><span lang="ja">少しずつ</span><p>Um pouquinho por dia.<br>Um mundo de descobertas.</p></div><a class="profile-link" href="#/settings" data-nav="settings"><span class="profile-avatar">M</span><span><strong>Meu ritmo</strong><small id="save-status">${statusLabels[status]}</small></span>${icon("settings")}</a></div>
   </aside>
