@@ -1,3 +1,4 @@
+import { dailyMissions } from "/shared/gamification.js";
 import { MODULES, LESSONS } from "/shared/curriculum.js";
 import { currentStreak, dueReviews, localDay } from "/shared/progress.js";
 import { icon, routeLink, progressBar } from "../core/ui.js";
@@ -32,6 +33,8 @@ export function renderDashboard(ctx) {
         <div class="week-strip" aria-label="Atividade nesta semana">${week}</div><div class="daily-bottom">${icon("fire")} <span><strong>${currentStreak(p)} ${currentStreak(p) === 1 ? "dia" : "dias"}</strong> de constância</span>${routeLink("settings", "Ajustar meta", "text-link")}</div>
       </aside>
     </div>
+    <div class="quick-learning-links">${routeLink("vocabulary", icon("book") + " Primeiras palavras", "btn btn-ghost")}${routeLink("exercises", icon("volume") + " Exercícios e escuta", "btn btn-ghost")}${routeLink("worksheets", icon("pen") + " Atividades para imprimir", "btn btn-ghost")}</div>
+    <section class="arcade-only panel mission-panel"><p class="eyebrow">SUAS MISSÕES DE HOJE</p><h2>Mais uma fase do seu aprendizado.</h2><div class="mission-list">${dailyMissions(p).map(mission => `<article class="mission-item"><strong>${mission.current === mission.target ? "✓ " : ""}${mission.title}</strong><p>${mission.description}</p>${progressBar(mission.current / mission.target * 100, mission.title)}<p>${mission.current} / ${mission.target}</p></article>`).join("")}</div></section>
     <section class="journey-preview"><div class="section-heading"><div><p class="eyebrow">DO PRIMEIRO SOM À PRIMEIRA FRASE</p><h2>Um caminho para chamar de seu</h2></div>${routeLink("journey", "Ver trilha completa " + icon("arrow"), "text-link")}</div>
       <div class="module-grid">${MODULES.slice(0, 4).map(module => {
         const done = module.lessons.filter(lesson => p.lessons[lesson.id]?.completedAt).length;

@@ -1,3 +1,5 @@
+import { getKanjiDetails } from "../core/kanji.js";
+import { VOCABULARY_EXERCISES, LISTENING_EXERCISES, PARTICLE_EXERCISES, SITUATION_EXERCISES } from "/shared/exercises.js";
 import { BEGINNER_KANJI, EXPRESSIONS, PARTICLES, ALL_KANA, SENTENCES } from "/shared/catalog.js";
 import { DATA, LEVELS, LEVEL_META, CAT_LABEL } from "/shared/content.js";
 import { SOURCES } from "/shared/curriculum.js";
@@ -10,6 +12,7 @@ const addButton = (ctx, id) => `<button class="btn btn-ghost btn-small" data-add
 const kanjiItem = item => ({ id: item.id, prompt: item.char, answer: item.meaning, instruction: "QUAL É O SIGNIFICADO?", explanation: item.reading + " · " + item.romaji });
 
 export const reviewCatalog = () => [
+  ...VOCABULARY_EXERCISES, ...LISTENING_EXERCISES, ...PARTICLE_EXERCISES, ...SITUATION_EXERCISES,
   ...ALL_KANA.map(kanaPracticeItem),
   ...BEGINNER_KANJI.map(kanjiItem),
   ...EXPRESSIONS.map(item => ({ id: item.id, prompt: item.jp, answer: item.pt, instruction: "O QUE ESTA EXPRESSÃO QUER DIZER?", explanation: item.note })),
@@ -22,7 +25,24 @@ export function renderKanji(ctx) {
   let cleanup;
   ctx.main.innerHTML = pageHeading("SIGNIFICADO EM CADA TRAÇO", "Pequenos encontros com kanji.", "Comece com 20 caracteres. Aprenda uma palavra junto com cada um: a leitura muda com o contexto.", routeLink("lesson/kanji-meaning", icon("book") + "Entender os kanji", "btn btn-ghost")) +
     `<div class="reference-banner sage"><span class="jp" lang="ja">山</span><div><h2>Não é sobre decorar tudo.</h2><p>É sobre reconhecer um pouco mais, todos os dias.</p></div><button class="btn btn-primary" id="practice-kanji">Praticar significados ${icon("arrow")}</button></div>
-    <div class="kanji-grid">${BEGINNER_KANJI.map(item => `<details class="kanji-card panel"><summary><span class="kanji-card-symbol jp" lang="ja">${item.char}</span><h2>${item.meaning}</h2><p lang="ja">${item.reading}</p>${ctx.progress.preferences.romaji ? `<span class="romaji">${item.romaji}</span>` : ""}<span class="kanji-expand">Conhecer a palavra ${icon("down")}</span></summary><div class="kanji-card-details">${exampleHTML({ jp: item.word, romaji: item.wordRomaji, pt: item.wordMeaning, note: item.wordReading }, ctx.progress.preferences.romaji)}<div class="card-actions">${routeLink("writing/" + encodeURIComponent(item.char), icon("pen") + "Escrever", "btn btn-ghost btn-small")}${addButton(ctx, item.id)}</div></div></details>`).join("")}</div>`;
+    <div class="kanji-grid">${BEGINNER_KANJI.map(item => `<details class="kanji-card panel" data-kanji="${item.char}"><summary><span class="kanji-card-symbol jp" lang="ja">${item.char}</span><h2>${item.meaning}</h2><p lang="ja">${item.reading}</p>${ctx.progress.preferences.romaji ? `<span class="romaji">${item.romaji}</span>` : ""}<span class="kanji-expand">Conhecer a palavra ${icon("down")}</span></summary><div class="kanji-card-details"><div class="kanji-api-details" data-kanji-details="${item.char}" aria-live="polite"></div>${exampleHTML({ jp: item.word, romaji: item.wordRomaji, pt: item.wordMeaning, note: item.wordReading }, ctx.progress.preferences.romaji)}<div class="card-actions">${routeLink("writing/" + encodeURIComponent(item.char), icon("pen") + "Escrever", "btn btn-ghost btn-small")}${addButton(ctx, item.id)}</div></div></details>`).join("")}</div>`;
+  ctx.main.addEventListener("toggle", async event => {
+    const card=event.target;
+    if(!card.matches?.("[data-kanji]") || !card.open || card.dataset.loaded) return;
+    card.dataset.loaded="loading";
+    const container=card.querySelector(".kanji-api-details");
+    container.textContent="Consultando as leituras…";
+    try {
+      const data=await getKanjiDetails(card.dataset.kanji);
+      if(controller.signal.aborted || !container.isConnected)return;
+      container.innerHTML=`<p class="small"><strong>${data.stroke_count} traços</strong> · Outras leituras</p><dl><dt>Kun — leituras de origem japonesa</dt><dd lang="ja">${data.kun_readings.map(esc).join(" · ") || "Não informadas"}</dd><dt>On — leituras de origem chinesa</dt><dd lang="ja">${data.on_readings.map(esc).join(" · ") || "Não informadas"}</dd></dl><p class="small muted">Não precisa decorar a lista agora: a palavra determina a leitura. O ponto separa a parte escrita em kanji dos kana que a acompanham; o hífen indica ligação com outra parte.</p><a class="source-note" href="https://kanjiapi.dev/#!/documentation" target="_blank" rel="noreferrer">${data.source==="offline"?"Consulta salva da KanjiAPI · disponível sem conexão":"Leituras consultadas na KanjiAPI"}</a>`;
+      card.dataset.loaded="ready";
+    } catch(error) {
+      if(controller.signal.aborted || !container.isConnected)return;
+      container.textContent=error.message;
+      delete card.dataset.loaded;
+    }
+  }, {capture:true,signal:controller.signal});
   ctx.main.querySelector("#practice-kanji").addEventListener("click", () => {
     cleanup = renderPractice(ctx, { title: "Seus primeiros kanji", items: BEGINNER_KANJI.map(kanjiItem), pool: BEGINNER_KANJI.map(kanjiItem), back: "kanji" });
     window.scrollTo({ top: 0 });

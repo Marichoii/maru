@@ -21,7 +21,7 @@ export function checkGuidedSentence(exerciseId, text) {
   const romaji = exercise.tokens.map(token => token[1]).join(" ");
   const answer = normalizeSentence(text);
   if (!answer) return { status: "empty", correct: false, model, romaji, message: "Monte ou escreva uma frase antes de verificar." };
-  const kana = exercise.tokens.map(token => readings[token[0]] || token[0]).join("");
+  const kana = exercise.tokens.map(token => token[3] || readings[token[0]] || token[0]).join("");
   const forms = [model, kana, toHiragana(kana), romaji, romaji.replace(/ō/g, "oo"), romaji.replace(/ō/g, "ou")];
   const correct = forms.some(form => normalizeSentence(form) === answer);
   return {

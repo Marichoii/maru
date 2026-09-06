@@ -1,3 +1,5 @@
+import { renderVocabulary, renderGlossary, renderExercises } from "./features/study.js";
+import { renderWorksheets } from "./features/worksheets.js";
 import { createStore } from "./core/store.js";
 import { createAudio } from "./core/audio.js";
 import { icon } from "./core/icons.js";
@@ -35,17 +37,17 @@ const audio = createAudio(toast, () => store.snapshot.preferences);
 applyTheme(store.snapshot.preferences.theme);
 const navigation = [
   { label: "", items: [["home", "home", "Meu aprendizado"]] },
-  { label: "APRENDER", items: [["journey", "path", "Minha trilha"], ["kana", "あ", "Hiragana & katakana"], ["kanji", "日", "Primeiros kanji"]] },
-  { label: "PRATICAR", items: [["writing", "pen", "Caderno de escrita"], ["sentences", "chat", "Formar frases"], ["particles", "layers", "Partículas"], ["review", "repeat", "Minha revisão"]] },
-  { label: "DESCOBRIR", items: [["expressions", "spark", "Expressões & gírias"], ["library", "book", "Biblioteca"]] }
+  { label: "APRENDER", items: [["journey", "path", "Minha trilha"], ["kana", "あ", "Hiragana & katakana"], ["kanji", "日", "Primeiros kanji"], ["vocabulary", "book", "Primeiras palavras"]] },
+  { label: "PRATICAR", items: [["writing", "pen", "Caderno de escrita"], ["sentences", "chat", "Formar frases"], ["particles", "layers", "Partículas"], ["exercises", "target", "Exercícios & escuta"], ["worksheets", "pen", "Atividades para imprimir"], ["review", "repeat", "Minha revisão"]] },
+  { label: "DESCOBRIR", items: [["expressions", "spark", "Expressões & gírias"], ["glossary", "book", "Explicado do zero"], ["library", "book", "Biblioteca"]] }
 ];
 const titles = Object.fromEntries(navigation.flatMap(group => group.items.map(([route, , label]) => [route, label])));
 titles.settings = "Meu ritmo"; titles.lesson = "Minha trilha";
 app.innerHTML = `
   <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Fechar navegação" hidden></button>
   <aside class="sidebar" id="sidebar"><a class="brand" href="#/home" aria-label="Maru, meu aprendizado"><img src="/assets/img/maru-crest.svg" alt="" width="38" height="38"><span>maru<span class="brand-period">.</span><small>JAPONÊS, PASSO A PASSO</small></span></a>
-    <nav aria-label="Navegação principal">${navigation.map(group => `<div class="nav-group">${group.label ? `<p class="nav-label">${group.label}</p>` : ""}${group.items.map(([route, symbol, label]) => `<a class="nav-link" href="#/${route}" data-nav="${route}">${["あ", "日"].includes(symbol) ? `<span class="nav-kana jp" aria-hidden="true">${symbol}</span>` : icon(symbol)}<span>${label}</span>${route === "review" ? '<span class="nav-count" id="review-count" hidden></span>' : ""}</a>`).join("")}</div>`).join("")}</nav>
-    <div class="sidebar-bottom">${themeSwitcher()}<div class="sidebar-message"><span lang="ja">少しずつ</span><p>Um pouquinho por dia.<br>Um mundo de descobertas.</p></div><a class="profile-link" href="#/settings" data-nav="settings"><span class="profile-avatar">M</span><span><strong>Meu ritmo</strong><small id="save-status">${statusLabels[status]}</small></span>${icon("settings")}</a></div>
+    ${themeSwitcher()}<nav aria-label="Navegação principal">${navigation.map(group => `<div class="nav-group">${group.label ? `<p class="nav-label">${group.label}</p>` : ""}${group.items.map(([route, symbol, label]) => `<a class="nav-link" href="#/${route}" data-nav="${route}">${["あ", "日"].includes(symbol) ? `<span class="nav-kana jp" aria-hidden="true">${symbol}</span>` : icon(symbol)}<span>${label}</span>${route === "review" ? '<span class="nav-count" id="review-count" hidden></span>' : ""}</a>`).join("")}</div>`).join("")}</nav>
+    <div class="sidebar-bottom"><div class="sidebar-message"><span lang="ja">少しずつ</span><p>Um pouquinho por dia.<br>Um mundo de descobertas.</p></div><a class="profile-link" href="#/settings" data-nav="settings"><span class="profile-avatar">M</span><span><strong>Meu ritmo</strong><small id="save-status">${statusLabels[status]}</small></span>${icon("settings")}</a></div>
   </aside>
   <div class="app-body"><header class="topbar"><div class="topbar-location"><button class="icon-button menu-button" id="menu-button" aria-label="Abrir navegação" aria-expanded="false" aria-controls="sidebar">${icon("menu")}</button><span>Seu espaço</span>${icon("chevron")}<strong id="current-location">Meu aprendizado</strong></div><div class="topbar-stats"><span class="topbar-streak">${icon("fire")}<strong id="streak-count">0 dias</strong></span><span class="topbar-divider"></span><span class="xp-label">${icon("spark")}<strong id="xp-total">0 XP</strong></span><a href="#/settings" class="topbar-avatar" aria-label="Ajustar meu ritmo">M</a></div></header>
   <div id="arcade-hud" class="arcade-only arcade-hud" aria-label="Seu nível de experiência"></div><main id="main" class="main-content" tabindex="-1"></main><footer class="app-footer"><a href="#/home">maru.</a><span>Aprender é abrir espaço para um novo mundo.</span><a href="#/library">Recursos & referências ${icon("external")}</a></footer></div>
@@ -110,6 +112,10 @@ function render() {
     expressions: () => renderExpressions(ctx),
     library: () => renderLibrary(ctx),
     review: () => renderReview(ctx),
+    vocabulary: () => renderVocabulary(ctx),
+    glossary: () => renderGlossary(ctx),
+    exercises: () => renderExercises(ctx),
+    worksheets: () => renderWorksheets(ctx),
     settings: () => renderSettings(ctx)
   };
   if (views[route]) cleanup = views[route]();

@@ -21,12 +21,30 @@ export async function sendStatic(req, res, pathname) {
   if (boundary.startsWith("..") || path.isAbsolute(boundary)) return sendJson(res, 403, { error: "Caminho não permitido." });
   try {
     const data = await fs.readFile(target);
-    res.writeHead(200, {
-      "Content-Type": types[path.extname(target)] || "application/octet-stream",
+    const extension = path.extname(target);
+    const audioTypes = { ".mp3": "audio/mpeg", ".wav": "audio/wav", ".ogg": "audio/ogg" };
+    const isAudio = Boolean(audioTypes[extension]);
+    const headers = {
+      "Content-Type": audioTypes[extension] || types[extension] || "application/octet-stream",
       "Content-Length": data.length,
-      "Cache-Control": "no-cache",
+      "Cache-Control": isAudio ? "public, max-age=31536000, immutable" : "no-cache",
       "X-Content-Type-Options": "nosniff"
-    });
+    };
+    if (isAudio) headers["Accept-Ranges"] = "bytes";
+    const range = isAudio && req.method === "GET" && /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+    if (range && (range[1] || range[2])) {
+      const start = range[1] ? Number(range[1]) : Math.max(0, data.length - Number(range[2]));
+      const end = range[1] && range[2] ? Math.min(Number(range[2]), data.length - 1) : data.length - 1;
+      if (start >= data.length || start > end || !Number.isSafeInteger(start) || !Number.isSafeInteger(end)) {
+        res.writeHead(416, { "Content-Range": "bytes */" + data.length, "Content-Length": 0 });
+        return res.end();
+      }
+      headers["Content-Range"] = "bytes " + start + "-" + end + "/" + data.length;
+      headers["Content-Length"] = end - start + 1;
+      res.writeHead(206, headers);
+      return res.end(data.subarray(start, end + 1));
+    }
+    res.writeHead(200, headers);
     res.end(req.method === "HEAD" ? undefined : data);
   } catch (error) {
     if (["ENOENT", "EISDIR", "ENOTDIR"].includes(error.code)) return sendJson(res, 404, { error: "Arquivo não encontrado." });

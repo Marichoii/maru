@@ -1,3 +1,4 @@
+import { MORE_SENTENCES, MORE_EXPRESSIONS } from "./extraCatalog.js";
 import { KANA, KANA_ROWS } from "./content.js";
 
 const prefixes = { ka: "ky", sa: "sh", ta: "ch", na: "ny", ha: "hy", ma: "my", ra: "ry", ga: "gy", za: "j", ba: "by", pa: "py" };
@@ -54,7 +55,7 @@ export const PARTICLES = [
   { char: "よ", sound: "yo", name: "Informação e ênfase", meaning: "Apresenta informação ou reforça o que se diz.", jp: "おいしいですよ。", romaji: "oishii desu yo", pt: "É gostoso, viu.", note: "Pode soar enfático. Observe como a outra pessoa reage e a relação entre vocês." }
 ];
 
-export const EXPRESSIONS = [
+const BASE_EXPRESSIONS = [
   ["hello", "こんにちは", "konnichiwa", "Olá / boa tarde", "everyday", "Cumprimento durante o dia. O は final é pronunciado wa.", "Ao encontrar alguém durante o dia."],
   ["thanks", "ありがとうございます", "arigatō gozaimasu", "Muito obrigado(a)", "everyday", "Agradecimento educado, útil com desconhecidos.", "Depois de receber ajuda."],
   ["excuse", "すみません", "sumimasen", "Com licença / desculpe", "everyday", "O sentido depende da situação.", "Para chamar alguém antes de pedir informação."],
@@ -73,7 +74,7 @@ export const EXPRESSIONS = [
   ["ryokai", "了解です", "ryōkai desu", "Entendido", "work", "Com superiores e clientes, 承知しました (shōchi shimashita) pode ser mais apropriado.", "Ao confirmar uma informação entre colegas."]
 ].map(([id, jp, romaji, pt, category, note, context]) => ({ id: "exp-" + id, jp, romaji, pt, category, note, context }));
 
-export const SENTENCES = [
+const BASE_SENTENCES = [
   { id: "identity", title: "Uma apresentação", prompt: "Eu sou estudante.", pattern: "tópico + は + informação + です", hint: "は marca o tópico e se lê wa.", tokens: [["わたし", "watashi", "eu"], ["は", "wa", "tópico"], ["学生", "gakusei", "estudante"], ["です", "desu", "final educado"]], distractors: [["を", "o", "objeto"], ["に", "ni", "destino"]] },
   { id: "origin", title: "De onde você é", prompt: "Eu sou brasileiro(a).", pattern: "tópico + は + nacionalidade + です", hint: "ブラジル人 significa pessoa brasileira.", tokens: [["わたし", "watashi", "eu"], ["は", "wa", "tópico"], ["ブラジル人", "Burajiru-jin", "brasileiro(a)"], ["です", "desu", "final educado"]], distractors: [["で", "de", "local da ação"], ["を", "o", "objeto"]] },
   { id: "question", title: "Uma pergunta", prompt: "Você é estudante? (sem pronome)", pattern: "informação + です + か", hint: "か encerra a pergunta; o contexto indica a pessoa.", tokens: [["学生", "gakusei", "estudante"], ["です", "desu", "final educado"], ["か", "ka", "pergunta"]], distractors: [["を", "o", "objeto"], ["も", "mo", "também"]] },
@@ -85,3 +86,6 @@ export const SENTENCES = [
   { id: "coffee", title: "No café", prompt: "Um café, por favor.", pattern: "item + を + ください", hint: "ください pede que lhe deem o item.", tokens: [["コーヒー", "kōhī", "café"], ["を", "o", "objeto"], ["ください", "kudasai", "por favor"]], distractors: [["は", "wa", "tópico"], ["です", "desu", "final educado"]] },
   { id: "station", title: "Pedir uma informação", prompt: "Onde fica a estação?", pattern: "lugar + は + どこ + です + か", hint: "どこ significa onde. A frase termina com ですか.", tokens: [["駅", "eki", "estação"], ["は", "wa", "tópico"], ["どこ", "doko", "onde"], ["です", "desu", "final educado"], ["か", "ka", "pergunta"]], distractors: [["を", "o", "objeto"], ["だれ", "dare", "quem"]] }
 ];
+
+export const EXPRESSIONS = [...BASE_EXPRESSIONS, ...MORE_EXPRESSIONS];
+export const SENTENCES = [...BASE_SENTENCES, ...MORE_SENTENCES];

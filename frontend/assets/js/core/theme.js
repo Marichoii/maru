@@ -16,5 +16,5 @@ export function applyTheme(theme) {
   });
 }
 export function themeSwitcher() {
-  return '<div class="theme-switcher" role="group" aria-label="Modo visual"><button data-theme-choice="dojo" aria-pressed="true"><span aria-hidden="true">道</span> Dojo</button><button data-theme-choice="arcade" aria-pressed="false"><span aria-hidden="true">✦</span> Arcade</button></div>';
+  return '<div class="theme-switcher" role="group" aria-label="Modo visual"><button class="theme-choice" data-theme-choice="dojo" aria-pressed="true"><span aria-hidden="true">道</span> Dojo</button><button class="theme-choice" data-theme-choice="arcade" aria-pressed="false"><span aria-hidden="true">✦</span> Arcade</button></div>';
 }

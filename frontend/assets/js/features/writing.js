@@ -1,7 +1,7 @@
 import { KANA } from "/shared/content.js";
 import { BEGINNER_KANJI } from "/shared/catalog.js";
 import { recordActivity } from "/shared/progress.js";
-import { pageHeading, icon, esc, audioButton } from "../core/ui.js";
+import { pageHeading, icon, esc, audioButton, routeLink } from "../core/ui.js";
 
 let strokeData;
 async function getStrokes(signal) {
@@ -81,7 +81,7 @@ export function renderWriting(ctx, char = "あ") {
     return (group === "kanji" ? BEGINNER_KANJI : KANA.filter(item => item.script === group))
       .map(item => `<option value="${item.char}" ${item.char === char ? "selected" : ""}>${item.char} · ${item.romaji}${item.meaning ? " · " + item.meaning : ""}</option>`).join("");
   }
-  ctx.main.innerHTML = pageHeading("CADERNO DE ESCRITA", "Dê forma ao que aprendeu.", "Observe a ordem dos traços. Depois, experimente com o mouse, o dedo ou uma caneta.") +
+  ctx.main.innerHTML = pageHeading("CADERNO DE ESCRITA", "Dê forma ao que aprendeu.", "Observe a ordem dos traços. Depois, experimente com o mouse, o dedo ou uma caneta.", routeLink("worksheets", "Imprimir atividades " + icon("pen"), "btn btn-ghost")) +
     `<div class="toolbar writing-toolbar"><div><label class="input-label" for="writing-group">O que vamos escrever?</label><select id="writing-group" class="text-input">${[["hiragana", "Hiragana"], ["katakana", "Katakana"], ["kanji", "Primeiros kanji"]].map(([id, label]) => `<option value="${id}" ${id === initialGroup ? "selected" : ""}>${label}</option>`).join("")}</select></div><div><label class="input-label" for="writing-char">Caractere</label><select id="writing-char" class="text-input">${choices(initialGroup)}</select></div><div class="writing-reading"><span class="jp" lang="ja">${char}</span><span><strong>${selected.romaji}</strong><small>${selected.meaning || (selected.romaji === "wo" ? "Partícula: som de o" : "Observe e repita")}</small></span>${audioButton(char)}</div></div>
     <div class="writing-grid"><section class="panel writing-panel"><div class="section-heading compact"><h2>1. Observe os traços</h2><span class="pill" id="stroke-count">Carregando…</span></div><div class="stroke-model" id="stroke-model"><span class="jp model-fallback" lang="ja">${char}</span></div><div class="stroke-controls"><button class="btn btn-primary" id="play-strokes" disabled>${icon("play")} Reproduzir</button><button class="icon-button" id="prev-stroke" aria-label="Traço anterior" disabled>${icon("back")}</button><button class="icon-button" id="next-stroke" aria-label="Próximo traço" disabled>${icon("arrow")}</button></div><p class="small muted" id="stroke-caption" aria-live="polite">Preparando o modelo de escrita.</p></section>
       <section class="panel writing-panel"><div class="section-heading compact"><h2>2. Agora é a sua vez</h2><span class="pill sage">Prática livre</span></div><div class="writing-stage"><div class="writing-guide" id="writing-guide" aria-hidden="true"></div><canvas id="writing-canvas" aria-label="Área para desenhar o caractere ${char} com mouse, toque ou caneta"></canvas></div><div class="drawing-controls"><button class="btn btn-ghost" id="toggle-guide" aria-pressed="true">${icon("eye")} Modelo</button><button class="icon-button" id="undo-stroke" aria-label="Desfazer último traço">${icon("undo")}</button><button class="btn btn-ghost" id="clear-writing">Limpar</button></div><button class="btn btn-primary full-width" id="save-writing" disabled>Registrar minha prática ${icon("check")}</button></section></div>
@@ -132,7 +132,7 @@ export function renderWriting(ctx, char = "あ") {
       ctx.main.querySelector("#writing-guide").hidden = hidden;
     }
     if (id === "save-writing" && !registered && !ctx.main.querySelector("#save-writing").disabled) {
-      registered = true; recordActivity(ctx.progress, 5); ctx.save();
+      registered = true; ctx.progress.stats.writingSessions++; ctx.audio.feedback("complete"); recordActivity(ctx.progress, 5); ctx.save();
       ctx.main.querySelector("#save-writing").disabled = true;
       ctx.main.querySelector("#save-writing").textContent = "Prática registrada · +5 XP";
       ctx.toast("Um traço de cada vez. Sua prática foi registrada.");

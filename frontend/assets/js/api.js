@@ -1,3 +1,15 @@
+// Anonymous browser profile. This is persistence isolation, not account authentication.
+let browserProfile;
+function profileId() {
+  if (browserProfile) return browserProfile;
+  try { browserProfile = localStorage.getItem("maru-profile-id"); } catch {}
+  if (!/^browser-[a-f0-9-]{20,60}$/.test(browserProfile || "")) {
+    browserProfile = "browser-" + (crypto.randomUUID?.() || Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2,"0")).join(""));
+    try { localStorage.setItem("maru-profile-id", browserProfile); } catch {}
+  }
+  return browserProfile;
+}
+
 const JSON_HEADERS = {
   "Accept": "application/json",
   "Content-Type": "application/json"
@@ -13,7 +25,7 @@ export function canUseBackend(){
 async function request(path, options){
   if(!canUseBackend()) throw new Error("Backend indisponivel");
   const res = await fetch(path, Object.assign({
-    headers: JSON_HEADERS,
+    headers: { ...JSON_HEADERS, "x-maru-user": profileId() },
     signal: AbortSignal.timeout(5000),
     keepalive: !options?.body || new TextEncoder().encode(options.body).byteLength < 60000
   }, options || {}));
