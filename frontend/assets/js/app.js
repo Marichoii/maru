@@ -132,6 +132,10 @@ function render() {
   };
   if (views[route]) cleanup = views[route]();
   else main.innerHTML = emptyState("Este caminho ainda não existe.", "Volte para seu espaço de aprendizado.", routeLink("home", "Meu aprendizado", "btn btn-primary"));
+  // Animate only the route entrance. Answering or moving through a lesson keeps the workspace still.
+  for (const element of main.children) {
+    if (!element.classList.contains("worksheets-page")) element.classList.add("page-entry");
+  }
   updateStats();
   window.scrollTo({ top: 0, behavior: "instant" });
   main.querySelector("h1")?.focus({ preventScroll: true });

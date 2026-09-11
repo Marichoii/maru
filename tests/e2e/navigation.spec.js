@@ -75,6 +75,13 @@ test("the Dojo is light, illustrations move and reduced motion disables decorati
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(248, 247, 243)');
   await expect(page.locator('.art-main')).toHaveCSS('animation-name', 'ink-float');
   await expect(page.locator('.art-sun')).toHaveCSS('animation-name', 'ink-breathe');
+  await page.goto('/#/placement');
+  await page.getByRole('button', { name: 'Encontrar meu começo', exact: false }).click();
+  await page.locator('input[name="answer"]').first().check();
+  const headingTop = await page.locator('.session-heading').evaluate(el => el.getBoundingClientRect().top);
+  await page.getByRole('button', { name: 'Registrar resposta', exact: true }).click();
+  expect(await page.locator('.session-heading').evaluate(el => el.getBoundingClientRect().top)).toBeCloseTo(headingTop, 0);
+  await page.goto('/#/home');
   for (const theme of ['dojo', 'arcade']) {
     await page.evaluate(theme => document.querySelector('[data-theme-choice="' + theme + '"]').click(), theme);
     await page.emulateMedia({ reducedMotion: 'reduce' });
