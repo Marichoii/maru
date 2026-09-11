@@ -5,6 +5,7 @@ import { currentStreak, dueReviews, localDay } from "/shared/progress.js";
 import { icon, routeLink, progressBar } from "../core/ui.js";
 
 export function renderDashboard(ctx) {
+  const controller = new AbortController();
   const p = ctx.progress;
   const completed = LESSONS.filter(lesson => p.lessons[lesson.id]?.completedAt).length;
   const next = nextLesson(p);
@@ -15,7 +16,7 @@ export function renderDashboard(ctx) {
     const day = new Date();
     day.setDate(day.getDate() - ((day.getDay() + 6) % 7) + i);
     const key = localDay(day);
-    return `<div class="week-day ${key === localDay() ? "is-today" : ""}"><span>${["S", "T", "Q", "Q", "S", "S", "D"][i]}</span><i class="${p.activity[key] ? "is-done" : ""}" title="${key}: ${p.activity[key] || 0} atividades">${p.activity[key] ? icon("check") : ""}</i></div>`;
+    return `<div class="week-day ${key === localDay() ? "is-today" : ""}"><span>${["S", "T", "Q", "Q", "S", "S", "D"][i]}</span><i class="${p.activity[key] ? "is-done" : p.restDays[key] ? "is-rest" : ""}" title="${key}: ${p.restDays[key] ? "pausa protegida, sem atividade" : (p.activity[key] || 0) + " atividades"}">${p.activity[key] ? icon("check") : p.restDays[key] ? "休" : ""}</i></div>`;
   }).join("");
   ctx.main.innerHTML = `
     <div class="page-heading dashboard-heading"><div><p class="eyebrow">PEQUENOS PASSOS, NOVAS DESCOBERTAS</p><h1 tabindex="-1">${completed ? "Que bom ter você de volta." : "O seu começo no japonês."}</h1><p class="page-description">Um lugar para aprender, praticar e descobrir. No seu ritmo.</p></div><span class="date-label">${new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "long" }).format(new Date())}</span></div>
@@ -26,6 +27,7 @@ export function renderDashboard(ctx) {
           <p>Do seu primeiro あ à sua primeira conversa.<br>Você não precisa saber nada para começar.</p>
           ${routeLink(next ? "lesson/" + next.id : "review", (completed || p.placement.acceptedModule ? "Continuar aprendendo" : "Começar do zero") + icon("arrow"), "btn btn-primary")}
           ${!completed && !p.placement.acceptedModule ? routeLink("placement", "Já sei um pouco " + icon("arrow"), "text-link placement-entry") : ""}
+          ${!completed && !p.placement.acceptedModule ? `<label class="welcome-goal" for="welcome-goal">Seu primeiro ritmo<select id="welcome-goal" class="text-input">${[5,10,15].map(amount => `<option value="${amount}" ${goal === amount ? "selected" : ""}>${amount} atividades por dia</option>`).join("")}</select></label>` : ""}
           <span class="hero-footnote">${icon("clock")} ${next ? next.minutes + " min · " + next.title : "Revise o que você já aprendeu"}</span>
         </div>
         <div class="kana-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><span class="art-sun"></span><span class="art-main jp">あ</span><span class="art-tag tag-hira">ひらがな <small>hiragana</small></span><span class="art-kana jp">ア</span><span class="art-kanji jp">日</span><span class="art-caption">はじめの一歩<small>o primeiro passo</small></span><svg class="art-spark" viewBox="0 0 32 32"><path d="M16 0Q18 14 32 16Q18 18 16 32Q14 18 0 16Q14 14 16 0" fill="currentColor"/></svg></div>
@@ -53,4 +55,11 @@ export function renderDashboard(ctx) {
     </section>
     <div class="dashboard-note"><span class="jp" lang="ja">一歩ずつ</span><p><strong>Ippo zutsu. Um passo de cada vez.</strong><br>Você não precisa aprender tudo hoje. Só precisa dar o próximo passo.</p><span class="journey-total">${completed} de ${LESSONS.length} lições concluídas</span></div><div class="support-footer"><span>Gratuito para aprender. Sempre.</span>${routeLink("support", "Apoie o Maru " + icon("arrow"), "text-link")}</div>
   `;
+  ctx.main.querySelector("#welcome-goal")?.addEventListener("change", event => {
+    ctx.progress.preferences.dailyGoal = Number(event.target.value);
+    ctx.save();
+    ctx.toast("Meta ajustada. Você pode mudar seu ritmo quando quiser.");
+    ctx.navigate("home");
+  }, { signal: controller.signal });
+  return () => controller.abort();
 }

@@ -67,7 +67,7 @@ etiquetas de nível são orientativas. Gírias e jargões variam por comunidade,
 
 ## Atividades e explicações
 
-O vocabulário inicial contém 64 palavras em oito temas. Cada palavra recebe
+O vocabulário inicial contém 64 palavras em sete temas. Cada palavra recebe
 leitura em kana, romaji, tradução e uma frase contextualizada. O glossário
 define 26 conceitos e é ligado às seções das lições por termos presentes no texto.
 
@@ -85,3 +85,27 @@ Pronúncias novas entram automaticamente no catálogo textual quando fazem parte
 dos exemplos. Para caracteres ou palavras com leitura ambígua, informe a leitura
 ensinada. A API sintetiza apenas a solicitação do aluno: não há geração em lote
 nem arquivos de áudio no projeto.
+
+
+## Diagnóstico, contexto e novos rascunhos
+
+O diagnóstico contém 15 perguntas em shared/placement.js. O reconhecimento de
+hiragana e katakana funciona como pré-requisito para sugestões posteriores;
+kanji, vocabulário, partículas e leitura refinam a indicação. O resultado sugere
+uma etapa, não certifica proficiência. A resposta “Ainda não sei” é válida e não
+altera revisão, XP, constância ou lições concluídas. A sugestão é reversível.
+
+shared/discovery.js reúne oito cápsulas culturais e três trilhas temáticas.
+As cápsulas reutilizam contexto e explicações de expressões existentes. As trilhas
+combinam IDs reais de palavras, modelos de frases, expressões e lições; não mantêm
+cópias concorrentes do conteúdo.
+
+Para começar uma lição, execute:
+
+    npm run content:new -- --id novo-tema --module everyday --title "Novo tema"
+
+O rascunho aparece em docs/drafts, com todos os campos e marcações REVISAR.
+O comando recusa IDs duplicados e nunca sobrescreve um arquivo. Complete o texto,
+confira [o checklist editorial](EDITORIAL-CHECKLIST.md), remova metadados do rascunho
+e só então integre a lição em shared/lessons e curriculum.js. O backlog registra
+os blocos posteriores sem apresentá-los como conteúdo já disponível ao aluno.

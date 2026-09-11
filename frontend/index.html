@@ -11,7 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&amp;family=DM+Serif+Display:ital@0;1&amp;family=Noto+Sans+JP:wght@400;500;600;700&amp;family=Noto+Serif+JP:wght@400;500;600&amp;family=Press+Start+2P&amp;family=Shippori+Mincho:wght@400;500;600;700&amp;family=Silkscreen:wght@400;700&amp;display=swap">
   <script>
-    try { document.documentElement.dataset.theme = JSON.parse(localStorage.getItem("maru-learning-v2"))?.preferences?.theme === "arcade" ? "arcade" : "dojo"; }
+    try {
+      const account = JSON.parse(localStorage.getItem("maru-active-account"));
+      const key = account?.id ? "maru-account-" + account.id + "-v2" : "maru-learning-v2";
+      document.documentElement.dataset.theme = JSON.parse(localStorage.getItem(key))?.preferences?.theme === "arcade" ? "arcade" : "dojo";
+    }
     catch { document.documentElement.dataset.theme = "dojo"; }
   </script>
   <link rel="stylesheet" href="/assets/css/main.css">

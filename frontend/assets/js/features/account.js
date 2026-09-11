@@ -3,7 +3,7 @@ import { esc, icon, routeLink } from "../core/ui.js";
 export function accountHTML(ctx, status) {
   const { user, googleEnabled, verified } = ctx.account;
   const message = {
-    "login-success": "Conta conectada. O progresso deste navegador foi reunido ao seu progresso salvo.",
+    "login-success": "Conta conectada. Seu progresso está pronto para ser sincronizado; acompanhe o indicador de salvamento.",
     "login-failed": "Não foi possível concluir o login. Ele pode ter sido cancelado ou expirado. Seu progresso continua neste navegador.",
     "login-unavailable": "O login ainda não está disponível neste Maru. Você pode continuar estudando sem conta."
   }[status];

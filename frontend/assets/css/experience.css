@@ -85,3 +85,7 @@
 .thematic-lessons { padding: 28px; margin-bottom: 30px; }
 .thematic-heading { margin-top: 35px; }
 @media (max-width: 950px) { .thematic-grid { grid-template-columns: minmax(0,1fr); } }
+
+.welcome-goal { display: block; color: var(--muted); font-size: 10px; margin-top: 18px; max-width: 230px; }
+.welcome-goal select { display: block; margin-top: 7px; width: 100%; font-size: 11px; min-height: 36px; padding: 7px 10px; background: var(--surface); }
+.week-day i.is-rest { border: 1px dashed var(--accent); background: transparent; color: var(--accent); font-style: normal; }

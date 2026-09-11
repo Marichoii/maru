@@ -5,7 +5,7 @@ guiada, explicações, exercícios e revisão espaçada.
 
 ## Rodar localmente
 
-Requer Node.js 20 ou superior. Não há build nem dependências de produção.
+Requer Node.js 22 ou superior. O frontend não exige build; o servidor usa SQLite e a biblioteca oficial de autenticação Google.
 
 ```bash
 npm install
@@ -15,7 +15,8 @@ npm run dev
 Abra [http://127.0.0.1:5173](http://127.0.0.1:5173).
 
 `HOST` e `PORT` configuram o servidor. O progresso fica em
-`data/progress/browser-<id>.json`; `MARU_DATA_DIR` permite usar outra pasta.
+`data/progress/maru.sqlite`; `MARU_DATA_DIR` permite usar outra pasta.
+Os arquivos JSON anteriores são importados por perfil e permanecem intactos.
 Cada navegador recebe um identificador próprio, salvo em `maru-profile-id`.
 Não abra o HTML diretamente como arquivo: os módulos usam o servidor HTTP.
 
@@ -23,7 +24,7 @@ Não abra o HTML diretamente como arquivo: os módulos usam o servidor HTTP.
 
 - **37 lições em 8 etapas:** primeiros passos, hiragana, katakana, kanji,
   frases, partículas, comunicação cotidiana e linguagem informal.
-- **Dois modos:** Dojo claro e minimalista; Arcade escuro com marca em pixels,
+- **Dois modos:** Dojo “Tinta e papel”, com washi, tinta e selos vermelhos; Arcade escuro com marca em pixels,
   nível, oito conquistas, missões diárias e efeitos opcionais. A troca mantém a atividade.
 - **Kana:** 46 básicos, 25 formas com marcas e 33 combinações por silabário;
   seleção de fileiras, reconhecimento, digitação e reforço dos erros.
@@ -33,7 +34,7 @@ Não abra o HTML diretamente como arquivo: os módulos usam o servidor HTTP.
   A validação compara modelos explícitos e explica a função das partículas.
 - **Referências:** 12 partículas, 50 expressões com contexto e o acervo
   complementar existente de 120 itens de vocabulário, kanji e gramática.
-- **Vocabulário:** 64 palavras em oito temas, cada uma com leitura, exemplo e tradução.
+- **Vocabulário:** 64 palavras em sete temas, cada uma com leitura, exemplo e tradução.
 - **Atividades:** 24 perguntas de partículas, 16 situações, 64 práticas de vocabulário
   e 96 exercícios de escuta com transcrição revelada após responder.
 - **Explicações:** 26 termos definidos do zero, também disponíveis dentro das lições.
@@ -42,6 +43,19 @@ Não abra o HTML diretamente como arquivo: os módulos usam o servidor HTTP.
 - **Revisão:** erros retornam em 10 minutos; acertos ampliam o intervalo.
 - **Progresso:** lições, XP, constância no calendário local e meta diária
   persistidos no navegador e no servidor, com migração dos dados anteriores.
+
+## Novas portas de entrada
+
+- **Diagnóstico:** 15 perguntas, pausa/retomada, sugestão de etapa e ajuste manual, sem XP ou conclusão automática.
+- **Contas:** login Google, importação do progresso anônimo e sincronização entre aparelhos. Sem credenciais, o estudo anônimo continua disponível.
+- **Selos:** oito etapas, conquistadas somente ao concluir suas lições. Uma pausa de um dia por semana pode preservar a constância, sem criar XP ou atividade.
+- **Descobertas:** oito cápsulas culturais e três trilhas temáticas (viagem, anime/mangá, trabalho), reutilizando o acervo.
+- **Apoio opcional:** página discreta; links reais do Apoia.se/Ko-fi configuráveis, sem paywall ou interrupções.
+
+Copie `.env.example` para `.env` e siga [a configuração de contas e hospedagem](docs/DEPLOYMENT.md).
+O login exige um cliente OAuth Google; nenhum segredo é enviado ao frontend.
+Para ampliar o conteúdo, use `npm run content:new -- --id nova-licao --module everyday --title "Minha lição"`.
+O comando cria um rascunho para revisão, sem publicá-lo. `npm run backup` gera uma cópia consistente do SQLite.
 
 ## Verificar
 
@@ -74,10 +88,12 @@ A KanjiAPI complementa os kanji com leituras e contagem de traços; ela não for
 Gravações de falantes em situações reais estão nos recursos da biblioteca.
 As fontes do Google são opcionais, com alternativas locais no CSS.
 
-Os perfis anônimos são separados por navegador. Ainda não há contas com login
-ou transferência automática de progresso entre dispositivos. `x-maru-user`
-é isolamento de persistência, não autenticação. Dados antigos do navegador
-continuam sendo migrados; o arquivo legado `default.json` permanece intacto.
+Os perfis anônimos são separados por navegador. Contas usam sessão com cookie
+HttpOnly e token armazenado como hash no SQLite. `x-maru-user` continua sendo
+apenas isolamento anônimo, não autenticação. Dados antigos são preservados.
+O login real depende das credenciais Google, e os links de apoio dependem de
+páginas reais. IA, link mágico e blocos avançados seguem as fases posteriores
+do [backlog](docs/BACKLOG.md).
 
 ## Organização
 

@@ -2,7 +2,7 @@
 
 O produto começa com uma trilha para quem ainda não conhece japonês. Conteúdo
 didático, regras de aprendizado, infraestrutura e interface são separados.
-JavaScript nativo e CSS dão conta da aplicação sem build obrigatório.
+JavaScript nativo e CSS dão conta da aplicação sem build obrigatório. O servidor requer Node.js 22+, better-sqlite3 e google-auth-library.
 
 ## Fronteiras
 
@@ -13,6 +13,9 @@ JavaScript nativo e CSS dão conta da aplicação sem build obrigatório.
 | `shared/catalog.js` | Combinações, kanji iniciais, partículas, expressões e frases. |
 | `shared/vocabulary.js`, `glossary.js`, `exercises.js` | Vocabulário inicial, conceitos e perguntas por tipo. |
 | `shared/pronunciation.js` | Texto e leitura correta das pronúncias aceitas pela API. |
+| `shared/placement.js`, `learningPath.js` | Diagnóstico por etapa, ponto de entrada e selos de conclusão. |
+| `shared/discovery.js` | Cápsulas culturais e trilhas temáticas por referências ao acervo. |
+| `backend/authService.js`, `siteConfig.js` | Sessões Google, validação de origem e configuração pública restrita. |
 | `shared/gamification.js` | Níveis, missões e conquistas derivados do progresso. |
 | `shared/content.js` | Kana básicos e acervo complementar preservado. |
 | `shared/progress.js` | Normalização, migração, mesclagem, XP, constância e revisão. |
@@ -58,22 +61,27 @@ inativas recebem inert; foco e Escape são tratados pelo shell.
 ## Persistência
 
 O schema v2 contém lessons, reviews, activity, preferences e updatedAt, além
-dos campos anteriores progress, kanaStats, xp, streak e stats.
+dos campos anteriores progress, kanaStats, xp, streak e stats. Os campos placement
+e restDays registram o diagnóstico e as pausas protegidas sem alterar dados anteriores.
 
 A normalização limita números, valida estruturas e converte revisões antigas.
 A mesclagem mantém a união das conclusões e os registros de revisão mais
 recentes; contadores históricos preservam o maior valor.
 
-O navegador grava imediatamente em `maru-learning-v2`. Chaves
+O navegador grava imediatamente em `maru-learning-v2` para convidados e em
+`maru-account-<id>-v2` para cada conta. A importação anônima é feita uma vez por
+conta neste navegador; logout restaura o perfil anônimo sem misturar caches. Chaves
 `maru-*-v1` e `nihongo-dojo-*-v1` são lidas na primeira migração e permanecem
 intactas. O envio ao servidor é serializado, com debounce, timeout e retomada
 ao voltar à conexão. A UI distingue salvamento no servidor, somente no
 navegador e somente na sessão.
 
-O servidor normaliza novamente, serializa gravações por perfil e usa arquivo
-temporário seguido de rename. O diretório padrão é relativo ao módulo,
-independente do diretório de execução. Não há autenticação nem sincronização
-colaborativa entre usuários.
+O servidor normaliza novamente e mescla snapshots em transação SQLite. O diretório
+padrão é relativo ao módulo. JSONs antigos são importados ao primeiro acesso de
+cada perfil e permanecem intactos. Contas Google usam cookies HttpOnly e sessões
+com token em hash. A identificação anônima nunca permite escolher uma conta.
+A identidade é conferida antes das escritas para impedir misturas ao trocar login.
+Veja DEPLOYMENT.md para configuração, limites de mesclagem e backup.
 
 ## Regras de aprendizado
 
@@ -130,7 +138,9 @@ A folha anterior foi substituída integralmente:
 - learning.css: vocabulário, exercícios, temas, missões e conquistas;
 - print.css: papel A4, grades sem degradê e paginação independente do tema.
 
-Dojo usa papel claro, tons naturais e vermelho. Arcade usa pixels e neon.
+Dojo usa a direção Tinta e papel: washi em SVG estático, tinta escura,
+Shippori Mincho e vermelho de hanko. themes/dojo.css concentra essa identidade;
+experience.css compõe as novas telas e contém o selo da home em tamanhos móveis. Arcade usa pixels e neon.
 Os seletores de Arcade usam `:where()` para não impedir os ajustes de responsividade.
 A troca atualiza tokens sem reconstruir o DOM da atividade. Fontes externas têm
 fallbacks locais. React, Motion e Anime.js foram removidos; as animações de
@@ -147,8 +157,12 @@ traços usam a Web Animations API.
 | POST | /api/phrase/check | Comparação com o modelo de uma atividade. |
 | POST | /api/audio | URL de reprodução remota de uma pronúncia do catálogo. |
 
-O navegador envia seu perfil anônimo em x-maru-user; isso separa a persistência
-e não autentica ninguém.
+GET /api/account informa a sessão; GET /api/auth/google inicia OAuth;
+GET /api/auth/google/callback valida state, PKCE, nonce e identidade.
+POST /api/auth/logout revoga a sessão. GET /api/config expõe apenas links de apoio.
+O navegador envia o perfil anônimo em x-maru-user; contas são resolvidas pelo cookie.
+Escritas de conta exigem a identidade esperada em x-maru-account e origem válida.
+Esse cabeçalho previne gravações de abas obsoletas e não autentica sozinho.
 JSON inválido retorna 400; corpo excessivo, 413; caminhos inexistentes, 404.
 
 ## Verificação
@@ -165,3 +179,21 @@ com captura dos erros do navegador.
 Os testes de voz usam respostas controladas e áudio em memória para não consumir
 a cota pública. Uma verificação separada confirmou reprodução real do streaming
 TTS Quest. PDFs são gerados no teste e conferidos por número de páginas.
+
+
+## Camadas de descoberta e orientação
+
+O diagnóstico é acessado pela home e configurações, sem item extra no menu.
+Seu resultado não passa por completeLesson ou recordReview: apenas placement é
+salvo. learningPath.js seleciona a próxima lição a partir da etapa aceita. Etapas
+anteriores continuam livres e aparecem como revisão opcional.
+
+Apoio fica no rodapé do dashboard e nas configurações. Trilhas temáticas ficam em
+Descobrir, assim como os imprimíveis. Cápsulas aparecem na última explicação da
+lição correspondente. Selos derivam de todas as lições reais de uma etapa; não são
+uma segunda fonte de verdade para o progresso.
+
+Um único dia sem estudo pode ser protegido por semana de segunda a domingo.
+A proteção só é registrada quando a pessoa volta no dia seguinte à pausa e não
+gera atividades ou XP. Lacunas maiores ou uma segunda pausa na semana reiniciam
+a sequência. A contagem continua medindo dias em que houve estudo.

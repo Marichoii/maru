@@ -13,7 +13,10 @@ export function createAuthService(storage, { origin = process.env.MARU_PUBLIC_OR
   if (site.pathname !== "/" || site.search || site.hash || site.username || site.password || !["http:", "https:"].includes(site.protocol)) throw new Error("MARU_PUBLIC_ORIGIN deve conter somente a origem do site.");
   if (site.protocol !== "https:" && !["localhost", "127.0.0.1", "[::1]"].includes(site.hostname)) throw new Error("O login requer HTTPS fora do ambiente local.");
   const enabled = Boolean(clientId && clientSecret && storage.db);
-  const oauth = client || new OAuth2Client(clientId, clientSecret, site.origin + "/api/auth/google/callback");
+  const oauth = client || new OAuth2Client({
+    clientId, clientSecret, redirectUri: site.origin + "/api/auth/google/callback",
+    transporterOptions: { timeout: 15000, retry: false }
+  });
   const db = storage.db;
   const cookie = (name, value, age) => name + "=" + value + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=" + age + (site.protocol === "https:" ? "; Secure" : "");
   const clear = () => cookie("maru_session", "", 0);
