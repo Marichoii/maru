@@ -1,0 +1,87 @@
+import { test, expect } from "@playwright/test";
+import { NAVIGATION, RESOURCES, PRACTICE_TOOLS } from "../../frontend/assets/js/core/navigation.js";
+
+test("five destinations lead to every resource and show its navigation context", async ({ page }) => {
+  await page.goto("/#/home");
+  await expect(page.locator('.sidebar nav .nav-link')).toHaveCount(5);
+  await expect(page.locator('.sidebar nav .nav-link')).toHaveText(NAVIGATION.map(item => item.title), { useInnerText: true });
+  for (const item of [...PRACTICE_TOOLS, ...RESOURCES]) {
+    const hub = PRACTICE_TOOLS.includes(item) ? "practice" : "explore";
+    await page.goto("/#/" + hub);
+    await page.getByRole("link", { name: item.title, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp("/#/" + item.route + "$"));
+    await expect(page.locator('main h1')).toBeVisible();
+    await expect(page.locator('.sidebar nav .is-active')).toHaveAttribute("data-nav", hub);
+    await expect(page.locator('#current-parent')).toHaveAttribute("href", "#/" + hub);
+    await page.locator('#current-parent').click();
+    await expect(page).toHaveURL(new RegExp("/#/" + hub + "$"));
+  }
+});
+
+test("resource search combines categories, ignores accents and keeps its state on return", async ({ page }) => {
+  await page.goto("/#/explore");
+  await expect(page.locator('.hub-card')).toHaveCount(9);
+  await page.getByRole('button', { name: 'Materiais de apoio', exact: true }).click();
+  await page.locator('#resource-search').fill('impressao');
+  await expect(page.locator('.hub-card')).toHaveCount(1);
+  await page.getByRole('link', { name: 'Atividades para imprimir', exact: true }).click();
+  await expect(page.locator('.paper-row')).toHaveCount(5);
+  await page.goBack();
+  await expect(page.locator('#resource-search')).toHaveValue('impressao');
+  await expect(page.getByRole('button', { name: 'Materiais de apoio', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('#resource-search').fill('nada-com-este-nome');
+  await expect(page.locator('.hub-empty')).toBeVisible();
+  await page.getByRole('button', { name: 'Limpar filtros', exact: false }).click();
+  await expect(page.locator('.hub-card')).toHaveCount(9);
+  await expect(page.locator('#resource-search')).toBeFocused();
+  await page.locator('#resource-search').fill('girias');
+  await expect(page.locator('.hub-card')).toHaveCount(1);
+  await expect(page.locator('.hub-card')).toContainText('Expressões e gírias');
+});
+
+test("hubs fit both modes; the mobile drawer fits and traps keyboard focus", async ({ page }) => {
+  const errors = []; page.on('pageerror', error => errors.push(error.message));
+  for (const theme of ['dojo', 'arcade']) {
+    for (const width of [1440, 768, 390, 320]) {
+      await page.setViewportSize({ width, height: 740 });
+      for (const route of ['home', 'practice', 'explore']) {
+        await page.goto('/#/' + route);
+        await page.locator('main h1').waitFor();
+        await page.evaluate(theme => document.querySelector('[data-theme-choice="' + theme + '"]').click(), theme);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+        if (width <= 820) {
+          await page.locator('#menu-button').click();
+          await expect(page.locator('.sidebar .nav-link.is-active')).toBeFocused();
+          await expect(page.locator('.app-body')).toHaveAttribute('inert', '');
+          expect(await page.locator('.sidebar').evaluate(el => el.scrollHeight <= el.clientHeight + 1)).toBe(true);
+          await page.locator('.profile-link').focus();
+          await page.keyboard.press('Tab');
+          await expect(page.locator('.sidebar .brand')).toBeFocused();
+          await page.keyboard.press('Shift+Tab');
+          await expect(page.locator('.profile-link')).toBeFocused();
+          await page.locator('#menu-close').click();
+          await expect(page.locator('#menu-button')).toBeFocused();
+          await expect(page.locator('.sidebar')).toHaveAttribute('inert', '');
+        }
+      }
+    }
+  }
+  expect(errors).toEqual([]);
+});
+
+test("the Dojo is light, illustrations move and reduced motion disables decoration", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/#/home');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(248, 247, 243)');
+  await expect(page.locator('.art-main')).toHaveCSS('animation-name', 'ink-float');
+  await expect(page.locator('.art-sun')).toHaveCSS('animation-name', 'ink-breathe');
+  for (const theme of ['dojo', 'arcade']) {
+    await page.evaluate(theme => document.querySelector('[data-theme-choice="' + theme + '"]').click(), theme);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(page.locator('.art-main')).toHaveCSS('animation-name', 'none');
+    await expect(page.locator('.art-sun')).toHaveCSS('animation-name', 'none');
+    await page.goto('/#/practice');
+    await expect(page.locator('.hub-card').first()).toHaveCSS('animation-name', 'none');
+    await page.goto('/#/home');
+  }
+});

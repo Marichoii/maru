@@ -44,6 +44,17 @@ montado entre telas. Alterações de progresso atualizam seus contadores sem
 reconstruir uma atividade em andamento. Na navegação móvel, as regiões
 inativas recebem inert; foco e Escape são tratados pelo shell.
 
+A barra lateral contém cinco destinos: Início, Minha trilha, Praticar, Revisão
+e Explorar. core/navigation.js centraliza os destinos, os recursos e a relação
+de cada tela com sua seção. Essa relação mantém o destaque do menu e o link de
+retorno no cabeçalho, inclusive ao abrir uma URL diretamente. O seletor de tema
+e Meu ritmo ficam no rodapé da barra, separados da navegação de estudo.
+
+Praticar reúne exercícios/escuta, escrita e frases. Explorar organiza as consultas
+por fundamentos, cultura e materiais de apoio, com busca sem distinção de acentos.
+Os filtros são guardados por aba em sessionStorage; voltar de um material restaura
+a busca. Nenhuma rota de conteúdo foi removida.
+
 ## Telas
 
 - Dashboard: próximo passo, meta diária e acesso às práticas.
@@ -136,15 +147,20 @@ A folha anterior foi substituída integralmente:
 - themes/arcade.css: variantes do modo Arcade, condicionadas por data-theme;
 - responsive.css: desktop, tablet e celular, com prioridade sobre o tema;
 - learning.css: vocabulário, exercícios, temas, missões e conquistas;
+- navigation.css: navegação simplificada, páginas Praticar/Explorar e busca;
+- motion.css: entradas, interação e movimento das ilustrações;
 - print.css: papel A4, grades sem degradê e paginação independente do tema.
 
-Dojo usa a direção Tinta e papel: washi em SVG estático, tinta escura,
+Dojo usa papel claro (#f8f7f3), superfícies quase brancas, washi em SVG estático, tinta escura,
 Shippori Mincho e vermelho de hanko. themes/dojo.css concentra essa identidade;
 experience.css compõe as novas telas e contém o selo da home em tamanhos móveis. Arcade usa pixels e neon.
 Os seletores de Arcade usam `:where()` para não impedir os ajustes de responsividade.
 A troca atualiza tokens sem reconstruir o DOM da atividade. Fontes externas têm
 fallbacks locais. React, Motion e Anime.js foram removidos; as animações de
 traços usam a Web Animations API.
+As animações de interface usam CSS, respeitam prefers-reduced-motion e são
+desativadas na impressão. Ilustrações usam transformações; textos não recebem
+animação contínua. A troca de tema continua preservando a atividade em andamento.
 
 ## API
 

@@ -37,7 +37,6 @@ export function renderDashboard(ctx) {
         <div class="week-strip" aria-label="Atividade nesta semana">${week}</div><div class="daily-bottom">${icon("fire")} <span><strong>${currentStreak(p)} ${currentStreak(p) === 1 ? "dia" : "dias"}</strong> de constância</span>${routeLink("settings", "Ajustar meta", "text-link")}</div>
       </aside>
     </div>
-    <div class="quick-learning-links">${routeLink("vocabulary", icon("book") + " Primeiras palavras", "btn btn-ghost")}${routeLink("exercises", icon("volume") + " Exercícios e escuta", "btn btn-ghost")}${routeLink("worksheets", icon("pen") + " Atividades para imprimir", "btn btn-ghost")}</div>
     <section class="arcade-only panel mission-panel"><p class="eyebrow">SUAS MISSÕES DE HOJE</p><h2>Mais uma fase do seu aprendizado.</h2><div class="mission-list">${dailyMissions(p).map(mission => `<article class="mission-item"><strong>${mission.current === mission.target ? "✓ " : ""}${mission.title}</strong><p>${mission.description}</p>${progressBar(mission.current / mission.target * 100, mission.title)}<p>${mission.current} / ${mission.target}</p></article>`).join("")}</div></section>
     <section class="journey-preview"><div class="section-heading"><div><p class="eyebrow">DO PRIMEIRO SOM À PRIMEIRA FRASE</p><h2>Um caminho para chamar de seu</h2></div>${routeLink("journey", "Ver trilha completa " + icon("arrow"), "text-link")}</div>
       <div class="module-grid">${MODULES.slice(0, 4).map(module => {
@@ -47,10 +46,9 @@ export function renderDashboard(ctx) {
     </section>
     <section><div class="section-heading"><div><p class="eyebrow">APRENDER TAMBÉM É EXPERIMENTAR</p><h2>Qual vai ser a prática de hoje?</h2></div><span class="muted small">Poucos minutos já fazem diferença.</span></div>
       <div class="practice-grid">${[
-        ["kana", "あ", "Reconhecer kana", "Dê som aos primeiros símbolos.", "sage"],
-        ["writing", "pen", "Soltar a mão", "Um traço de cada vez.", "peach"],
-        ["sentences", "chat", "Montar uma frase", "Conecte palavras e ideias.", "sky"],
-        ["review", "repeat", "Relembrar o que aprendeu", due ? due + " itens esperando por você." : "Faça o conhecimento ficar.", "lavender"]
+        ["practice", "target", "Praticar o que aprendeu", "Escuta, escrita e primeiras frases.", "sage"],
+        ["explore", "book", "Encontrar novos caminhos", "Kana, palavras, cultura e materiais.", "sky"],
+        ...(due ? [["review", "repeat", "Relembrar o que aprendeu", due + " itens esperando por você.", "lavender"]] : [])
       ].map(([route, symbol, title, text, color]) => `<a class="practice-card" href="#/${route}"><span class="practice-icon ${color}">${symbol === "あ" ? '<span class="jp">あ</span>' : icon(symbol)}</span><div><h3>${title}</h3><p>${text}</p></div>${icon("chevron")}</a>`).join("")}</div>
     </section>
     <div class="dashboard-note"><span class="jp" lang="ja">一歩ずつ</span><p><strong>Ippo zutsu. Um passo de cada vez.</strong><br>Você não precisa aprender tudo hoje. Só precisa dar o próximo passo.</p><span class="journey-total">${completed} de ${LESSONS.length} lições concluídas</span></div><div class="support-footer"><span>Gratuito para aprender. Sempre.</span>${routeLink("support", "Apoie o Maru " + icon("arrow"), "text-link")}</div>

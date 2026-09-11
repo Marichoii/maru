@@ -24,7 +24,8 @@ Não abra o HTML diretamente como arquivo: os módulos usam o servidor HTTP.
 
 - **37 lições em 8 etapas:** primeiros passos, hiragana, katakana, kanji,
   frases, partículas, comunicação cotidiana e linguagem informal.
-- **Dois modos:** Dojo “Tinta e papel”, com washi, tinta e selos vermelhos; Arcade escuro com marca em pixels,
+- **Navegação:** cinco destinos principais, com práticas agrupadas e materiais pesquisáveis em Explorar.
+- **Dois modos:** Dojo claro, com washi, tinta e selos vermelhos; Arcade escuro com marca em pixels,
   nível, oito conquistas, missões diárias e efeitos opcionais. A troca mantém a atividade.
 - **Kana:** 46 básicos, 25 formas com marcas e 33 combinações por silabário;
   seleção de fileiras, reconhecimento, digitação e reforço dos erros.

@@ -1,69 +1,69 @@
-/* Tinta e papel: warm washi, sumi ink and vermilion hanko. */
+/* Tinta e papel: light washi, sumi ink and vermilion hanko. */
 :root[data-theme="dojo"] {
-  --paper: #f3ece0;
-  --surface: #fbf7ef;
-  --surface-soft: #eee5d7;
-  --ink: #221f1c;
-  --muted: #6b6055;
-  --subtle: #827464;
-  --line: #ded2bf;
+  --paper: #f8f7f3;
+  --surface: #fffefa;
+  --surface-soft: #f2f1eb;
+  --ink: #30332d;
+  --muted: #6c7067;
+  --subtle: #81857b;
+  --line: #e6e7df;
   --accent: #a3311f;
   --accent-hover: #842516;
-  --accent-soft: #f3ded4;
-  --peach: #f0dfcf;
-  --sage: #e5e8d9;
-  --lavender: #ebe3e8;
-  --sky: #e1e8e6;
-  --sand: #ebe0c5;
-  --radius: 8px;
-  --radius-sm: 5px;
+  --accent-soft: #f7eae4;
+  --peach: #f4e5d9;
+  --sage: #e8edde;
+  --lavender: #ece8f1;
+  --sky: #e5edf0;
+  --sand: #f0e9d7;
+  --radius: 14px;
+  --radius-sm: 8px;
   --shadow: 0 4px 15px #44311c08;
   --font-display: "Shippori Mincho", Georgia, serif;
   --font-jp-serif: "Shippori Mincho", "Noto Serif JP", "Yu Mincho", serif;
 }
 :where([data-theme="dojo"]) body { background-image: url("/assets/img/washi.svg"); }
-:where([data-theme="dojo"]) .sidebar { background: #eee5d7 url("/assets/img/washi.svg"); border-right-color: #d8cab3; }
-:where([data-theme="dojo"]) .topbar { background: #f3ece0ee; border-bottom-color: var(--line); }
+:where([data-theme="dojo"]) .sidebar { background: #fffefa url("/assets/img/washi.svg"); border-right-color: #e6e7df; }
+:where([data-theme="dojo"]) .topbar { background: #f8f7f3ee; border-bottom-color: var(--line); }
 :where([data-theme="dojo"]) .page-heading h1 { font-family: var(--font-display); font-weight: 600; letter-spacing: -.04em; }
 :where([data-theme="dojo"]) .eyebrow { color: var(--accent); letter-spacing: .13em; }
 :where([data-theme="dojo"]) .brand { color: var(--ink); }
 :where([data-theme="dojo"]) .brand-period { color: var(--accent); }
-:where([data-theme="dojo"]) .nav-link.is-active { background: #a3311f0b; color: var(--accent); border-radius: 3px; box-shadow: inset 2px 0 var(--accent); }
-:where([data-theme="dojo"]) .welcome-card { background: #eee3d1 url("/assets/img/washi.svg"); border-color: #d7c5a8; border-radius: 9px 9px 24px 9px; }
+:where([data-theme="dojo"]) .nav-link.is-active { background: #a3311f0b; color: var(--accent); border-radius: 8px; box-shadow: inset 2px 0 var(--accent); }
+:where([data-theme="dojo"]) .welcome-card { background: #f7f4ec url("/assets/img/washi.svg"); border-color: #e6dfd1; border-radius: 9px 9px 24px 9px; }
 :where([data-theme="dojo"]) .welcome-card::after { content: ""; position: absolute; inset: 9px; border: 1px solid #a68c6130; border-radius: 3px 3px 17px 3px; pointer-events: none; }
 :where([data-theme="dojo"]) .welcome-copy h2 { color: var(--ink); font-weight: 600; line-height: 1.14; font-size: clamp(34px, 3.6vw, 49px); }
 :where([data-theme="dojo"]) .welcome-copy h2 em { color: var(--accent); font-style: normal; }
 :where([data-theme="dojo"]) .welcome-copy > p { font-size: 12px; color: var(--muted); }
 :where([data-theme="dojo"]) .welcome-copy .pill { background: transparent; padding-left: 0; color: var(--accent); }
-:where([data-theme="dojo"]) .art-sun { background: #a3311f; border-radius: 49% 51% 47% 53% / 52% 47% 53% 48%; box-shadow: inset 0 0 0 4px #eee3d12b, 0 0 0 1px #a3311f44; }
+:where([data-theme="dojo"]) .art-sun { background: #a3311f; border-radius: 49% 51% 47% 53% / 52% 47% 53% 48%; box-shadow: inset 0 0 0 4px #f7f4ec2b, 0 0 0 1px #a3311f44; }
 :where([data-theme="dojo"]) .art-main { color: #faf1df; transform: translateX(-50%) rotate(-7deg); }
 :where([data-theme="dojo"]) .art-orbit { border-color: #a68c6130; }
 :where([data-theme="dojo"]) .art-kana { background: var(--ink); color: var(--paper); border: 3px double #d2c4ac; border-radius: 3px; transform: rotate(6deg); box-shadow: 2px 4px 0 #483c2920; }
 :where([data-theme="dojo"]) .art-kanji { background: transparent; border: 2px solid var(--accent); border-radius: 2px; color: var(--accent); transform: rotate(-4deg); }
 :where([data-theme="dojo"]) .art-caption, :where([data-theme="dojo"]) .art-tag { color: var(--muted); }
 :where([data-theme="dojo"]) .art-spark { color: #b08a3e; }
-:where([data-theme="dojo"]) .goal-ring { background: conic-gradient(#a3311f var(--goal), #e9dfcd 0); padding: 5px; }
+:where([data-theme="dojo"]) .goal-ring { background: conic-gradient(#a3311f var(--goal), #eeede6 0); padding: 5px; }
 :where([data-theme="dojo"]) .week-day i { background: var(--surface-soft); border-radius: 4px; }
 :where([data-theme="dojo"]) .week-day i.is-done { background: var(--accent); border-color: var(--accent); color: white; }
 :where([data-theme="dojo"]) .daily-bottom strong, :where([data-theme="dojo"]) .hero-footnote { color: var(--muted); }
-:where([data-theme="dojo"]) .module-card { border-radius: 5px; }
+:where([data-theme="dojo"]) .module-card { border-radius: 10px; }
 :where([data-theme="dojo"]) .module-card:hover { border-color: var(--accent); transform: translateY(-2px); }
 :where([data-theme="dojo"]) .module-symbol { border-radius: 3px; color: var(--accent); border: 1px solid #a3311f25; background: #a3311f08; }
 :where([data-theme="dojo"]) .practice-card:hover { background: var(--surface-soft); border-color: #be9e7e; }
 :where([data-theme="dojo"]) .summary-symbol, :where([data-theme="dojo"]) .detail-character, :where([data-theme="dojo"]) .kanji-card-symbol, :where([data-theme="dojo"]) .progress-overview > .jp { color: var(--ink); }
-:where([data-theme="dojo"]) .kana-cell { background: #f8f2e8; border-radius: 3px; }
-:where([data-theme="dojo"]) .kana-row.is-selected .kana-cell { background: #f1e5d5; }
+:where([data-theme="dojo"]) .kana-cell { background: #faf9f5; border-radius: 3px; }
+:where([data-theme="dojo"]) .kana-row.is-selected .kana-cell { background: #f0f1e8; }
 :where([data-theme="dojo"]) .kana-cell small { color: var(--muted); }
-:where([data-theme="dojo"]) .word-token { background: #f8f2e8; border-color: var(--line); border-bottom-color: #c7b99f; border-radius: 4px; }
+:where([data-theme="dojo"]) .word-token { background: #faf9f5; border-color: var(--line); border-bottom-color: #dbd9ce; border-radius: 4px; }
 :where([data-theme="dojo"]) .word-token small { color: var(--muted); }
-:where([data-theme="dojo"]) .word-token:hover:not(:disabled), :where([data-theme="dojo"]) .selected-token { background: #f3ded4; border-color: #be9e7e; }
-:where([data-theme="dojo"]) .example { background: #f7f0e4; border-color: var(--line); }
+:where([data-theme="dojo"]) .word-token:hover:not(:disabled), :where([data-theme="dojo"]) .selected-token { background: #f7eae4; border-color: #be9e7e; }
+:where([data-theme="dojo"]) .example { background: #f7f6f0; border-color: var(--line); }
 :where([data-theme="dojo"]) .context-box, :where([data-theme="dojo"]) .sentence-hint { background: var(--surface-soft); }
 :where([data-theme="dojo"]) .context-box p, :where([data-theme="dojo"]) .particle-note, :where([data-theme="dojo"]) .kanji-expand { color: var(--muted); }
-:where([data-theme="dojo"]) .achievement { background: #f6eee0; border-radius: 4px; }
+:where([data-theme="dojo"]) .achievement { background: #f7f6f0; border-radius: 4px; }
 :where([data-theme="dojo"]) .achievement.is-earned { background: #a3311f08; border-color: #a3311f60; }
 :where([data-theme="dojo"]) .achievement.is-earned .badge-symbol { display: grid; place-items: center; width: 48px; height: 48px; color: var(--accent); border: 3px double var(--accent); border-radius: 3px; transform: rotate(-3deg); }
-:where([data-theme="dojo"]) .theme-preview.dojo { background: #eee3d1 url("/assets/img/washi.svg"); color: #a3311f; }
+:where([data-theme="dojo"]) .theme-preview.dojo { background: #f7f4ec url("/assets/img/washi.svg"); color: #a3311f; }
 @media (prefers-reduced-motion: reduce) {
   :where([data-theme="dojo"]) .module-card:hover { transform: none; }
 }

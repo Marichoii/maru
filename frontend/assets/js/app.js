@@ -1,3 +1,5 @@
+import { renderPracticeHub, renderExplore } from "./features/hubs.js";
+import { NAVIGATION, navigationFor } from "./core/navigation.js";
 import { renderThematic } from "./features/thematic.js";
 import { renderPlacement } from "./features/placement.js";
 import { renderSupport } from "./features/support.js";
@@ -38,21 +40,13 @@ function updateStatus(value) {
 const store = await createStore(updateStatus);
 const audio = createAudio(toast, () => store.snapshot.preferences);
 applyTheme(store.snapshot.preferences.theme);
-const navigation = [
-  { label: "", items: [["home", "home", "Meu aprendizado"]] },
-  { label: "APRENDER", items: [["journey", "path", "Minha trilha"], ["kana", "あ", "Hiragana & katakana"], ["kanji", "日", "Primeiros kanji"], ["vocabulary", "book", "Primeiras palavras"]] },
-  { label: "PRATICAR", items: [["writing", "pen", "Caderno de escrita"], ["sentences", "chat", "Formar frases"], ["particles", "layers", "Partículas"], ["exercises", "target", "Exercícios & escuta"], ["review", "repeat", "Minha revisão"]] },
-  { label: "DESCOBRIR", items: [["expressions", "spark", "Expressões & gírias"], ["glossary", "book", "Explicado do zero"], ["library", "book", "Biblioteca"], ["worksheets", "pen", "Atividades para imprimir"], ["themes", "path", "Trilhas temáticas"]] }
-];
-const titles = Object.fromEntries(navigation.flatMap(group => group.items.map(([route, , label]) => [route, label])));
-titles.placement = "Encontre seu começo"; titles.support = "Apoie o Maru"; titles.settings = "Meu ritmo"; titles.lesson = "Minha trilha";
 app.innerHTML = `
   <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Fechar navegação" hidden></button>
-  <aside class="sidebar" id="sidebar"><a class="brand" href="#/home" aria-label="Maru, meu aprendizado"><img src="/assets/img/maru-mark.svg" alt="" width="38" height="38"><span>maru<span class="brand-period">.</span><small>JAPONÊS, PASSO A PASSO</small></span></a>
-    ${themeSwitcher()}<nav aria-label="Navegação principal">${navigation.map(group => `<div class="nav-group">${group.label ? `<p class="nav-label">${group.label}</p>` : ""}${group.items.map(([route, symbol, label]) => `<a class="nav-link" href="#/${route}" data-nav="${route}">${["あ", "日"].includes(symbol) ? `<span class="nav-kana jp" aria-hidden="true">${symbol}</span>` : icon(symbol)}<span>${label}</span>${route === "review" ? '<span class="nav-count" id="review-count" hidden></span>' : ""}</a>`).join("")}</div>`).join("")}</nav>
-    <div class="sidebar-bottom"><div class="sidebar-message"><span lang="ja">少しずつ</span><p>Um pouquinho por dia.<br>Um mundo de descobertas.</p></div><a class="profile-link" href="#/settings" data-nav="settings"><span class="profile-avatar">M</span><span><strong>Meu ritmo</strong><small id="save-status">${statusLabels[status]}</small></span>${icon("settings")}</a></div>
+  <aside class="sidebar" id="sidebar" aria-label="Seu espaço de estudo"><div class="sidebar-brand"><a class="brand" href="#/home" aria-label="Maru, início"><img src="/assets/img/maru-mark.svg" alt="" width="38" height="38"><span>maru<span class="brand-period">.</span><small>JAPONÊS, PASSO A PASSO</small></span></a><button class="icon-button menu-close" id="menu-close" aria-label="Fechar navegação">${icon("close")}</button></div>
+    <nav aria-label="Navegação principal"><p class="nav-label">SEU JAPONÊS</p>${NAVIGATION.map(({route, icon: symbol, title}) => `<a class="nav-link" href="#/${route}" data-nav="${route}">${icon(symbol)}<span>${title}</span>${route === "review" ? '<span class="nav-count" id="review-count" hidden></span>' : ""}</a>`).join("")}</nav>
+    <div class="sidebar-bottom"><p class="sidebar-mode-label">Seu ambiente</p>${themeSwitcher()}<a class="profile-link" href="#/settings" data-nav="settings"><span class="profile-avatar">M</span><span><strong>Meu ritmo</strong><small id="save-status">${statusLabels[status]}</small></span>${icon("settings")}</a></div>
   </aside>
-  <div class="app-body"><header class="topbar"><div class="topbar-location"><button class="icon-button menu-button" id="menu-button" aria-label="Abrir navegação" aria-expanded="false" aria-controls="sidebar">${icon("menu")}</button><span>Seu espaço</span>${icon("chevron")}<strong id="current-location">Meu aprendizado</strong></div><div class="topbar-stats"><span class="topbar-streak">${icon("fire")}<strong id="streak-count">0 dias</strong></span><span class="topbar-divider"></span><span class="xp-label">${icon("spark")}<strong id="xp-total">0 XP</strong></span><a href="#/settings" class="topbar-avatar" aria-label="Ajustar meu ritmo">M</a></div></header>
+  <div class="app-body"><header class="topbar"><div class="topbar-location"><button class="icon-button menu-button" id="menu-button" aria-label="Abrir navegação" aria-expanded="false" aria-controls="sidebar">${icon("menu")}</button><a class="topbar-parent" id="current-parent" href="#/home">Início</a><span id="breadcrumb-divider">${icon("chevron")}</span><strong id="current-location">Início</strong></div><div class="topbar-stats"><span class="topbar-streak">${icon("fire")}<strong id="streak-count">0 dias</strong></span><span class="topbar-divider"></span><span class="xp-label">${icon("spark")}<strong id="xp-total">0 XP</strong></span><a href="#/settings" class="topbar-avatar" aria-label="Ajustar meu ritmo">M</a></div></header>
   <div id="arcade-hud" class="arcade-only arcade-hud" aria-label="Seu nível de experiência"></div><main id="main" class="main-content" tabindex="-1"></main><footer class="app-footer"><a href="#/home">maru.</a><span>Aprender é abrir espaço para um novo mundo. <span class="voice-credit">Voz: VOICEVOX:ずんだもん</span></span><a href="#/library">Recursos & referências ${icon("external")}</a></footer></div>
 `;
 const main = document.querySelector("#main");
@@ -90,7 +84,7 @@ function setMenu(open) {
   document.querySelector("#sidebar-backdrop").hidden = !open;
   document.querySelector("#sidebar").inert = mobile && !open;
   document.querySelector(".app-body").inert = mobile && open;
-  if (open) document.querySelector(".sidebar .nav-link")?.focus();
+  if (open) (document.querySelector(".sidebar .nav-link.is-active") || document.querySelector(".sidebar .nav-link"))?.focus();
 }
 matchMedia("(max-width: 820px)").addEventListener("change", () => setMenu(false));
 function render() {
@@ -99,15 +93,24 @@ function render() {
   try { [route = "home", id = ""] = decodeURIComponent(location.hash.replace(/^#\/?/, "")).split("/"); } catch { route = "missing"; }
   if (!route) route = "home";
   const params = routeParams || {}; routeParams = null;
+  const locationInfo = navigationFor(route);
   document.querySelectorAll("[data-nav]").forEach(link => {
-    const active = link.dataset.nav === (route === "lesson" ? "journey" : route);
+    const active = link.dataset.nav === locationInfo.section;
     link.classList.toggle("is-active", active);
-    if (active) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
+    if (active) link.setAttribute("aria-current", link.dataset.nav === route ? "page" : "location"); else link.removeAttribute("aria-current");
   });
-  document.querySelector("#current-location").textContent = titles[route] || "Página não encontrada";
-  document.title = (titles[route] || "Maru") + " · Maru";
+  document.querySelector("#current-location").textContent = locationInfo.title;
+  const parent = document.querySelector("#current-parent");
+  const hasParent = Boolean(locationInfo.section && locationInfo.section !== route);
+  parent.hidden = !hasParent;
+  document.querySelector("#breadcrumb-divider").hidden = !hasParent;
+  parent.href = "#/" + locationInfo.section;
+  parent.textContent = navigationFor(locationInfo.section).title;
+  document.title = locationInfo.title + " · Maru";
   const views = {
     home: () => renderDashboard(ctx),
+    practice: () => renderPracticeHub(ctx),
+    explore: () => renderExplore(ctx),
     journey: () => renderJourney(ctx, id),
     lesson: () => renderLesson(ctx, id),
     kana: () => renderKana(ctx, params),
@@ -134,12 +137,13 @@ function render() {
   main.querySelector("h1")?.focus({ preventScroll: true });
 }
 document.querySelector("#menu-button").addEventListener("click", () => setMenu(!document.body.classList.contains("menu-open")));
+document.querySelector("#menu-close").addEventListener("click", () => { setMenu(false); document.querySelector("#menu-button").focus(); });
 document.querySelector("#sidebar-backdrop").addEventListener("click", () => { setMenu(false); document.querySelector("#menu-button").focus(); });
 document.addEventListener("keydown", event => {
   if (!document.body.classList.contains("menu-open")) return;
   if (event.key === "Escape") { setMenu(false); document.querySelector("#menu-button").focus(); }
   if (event.key === "Tab") {
-    const focusable = [...document.querySelectorAll('.sidebar a, .sidebar button')];
+    const focusable = [...document.querySelectorAll('.sidebar a, .sidebar button')].filter(element => element.getClientRects().length && !element.disabled);
     if (event.shiftKey && document.activeElement === focusable[0]) { event.preventDefault(); focusable.at(-1).focus(); }
     else if (!event.shiftKey && document.activeElement === focusable.at(-1)) { event.preventDefault(); focusable[0].focus(); }
   }
