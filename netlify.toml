@@ -1,2 +1,3 @@
 [build]
-  publish = "frontend"
+  command = "rm -rf dist && mkdir -p dist && cp -R frontend/. dist/ && cp -R shared dist/shared"
+  publish = "dist"
