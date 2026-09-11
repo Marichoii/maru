@@ -12,7 +12,7 @@ export const ACHIEVEMENTS = [
   { id: "pen", symbol: "筆", title: "Tinta no papel", description: "Registre uma prática de escrita.", test: p => p.stats.writingSessions >= 1 },
   { id: "sentence", symbol: "文", title: "Ideia completa", description: "Acerte cinco frases guiadas.", test: p => Object.keys(p.reviews).filter(id => id.startsWith("sentence-") && p.reviews[id].correct > 0).length >= 5 },
   { id: "ears", symbol: "聞", title: "Ouvido atento", description: "Acerte cinco atividades de escuta.", test: p => Object.keys(p.reviews).filter(id => id.startsWith("listen-") && p.reviews[id].correct > 0).length >= 5 },
-  { id: "week", symbol: "七", title: "Uma semana de prática", description: "Pratique em sete dias seguidos.", test: p => currentStreak(p) >= 7 },
+  { id: "week", symbol: "七", title: "Uma semana de prática", description: "Acumule sete dias de constância, com espaço para uma pausa semanal.", test: p => currentStreak(p) >= 7 },
   { id: "ten", symbol: "十", title: "Base em construção", description: "Conclua dez lições.", test: p => LESSONS.filter(item => p.lessons[item.id]?.completedAt).length >= 10 },
   { id: "collector", symbol: "知", title: "Pequeno repertório", description: "Acerte 30 itens diferentes.", test: p => Object.values(p.reviews).filter(item => item.correct > 0).length >= 30 }
 ];

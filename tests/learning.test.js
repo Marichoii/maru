@@ -68,13 +68,14 @@ test("incorrect attempts reset the interval, correct attempts space out reviews"
   assert.equal(scheduleReview({ ...p.reviews["h-a-0"], interval: 40 }, true, now).interval, 60);
 });
 
-test("streak follows local calendar days and expires after a missed day", () => {
+test("streak permits one weekly rest day and expires after a longer gap", () => {
   const p = normalizeSnapshot();
   const now = new Date(2026, 8, 5, 0, 5);
   const yesterday = new Date(2026, 8, 4, 23, 55);
   p.streak = { count: 3, lastDate: localDay(yesterday) };
   assert.equal(currentStreak(p, now), 3);
-  assert.equal(currentStreak(p, new Date(2026, 8, 6, 0, 5)), 0);
+  assert.equal(currentStreak(p, new Date(2026, 8, 6, 0, 5)), 3);
+  assert.equal(currentStreak(p, new Date(2026, 8, 7, 0, 5)), 0);
 });
 
 test("migration retains legacy progress and normalizes new fields", () => {

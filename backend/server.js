@@ -6,12 +6,14 @@ import { sendStatic } from "./staticFiles.js";
 import { sendJson } from "./http.js";
 import { createProgressStorage } from "./storage.js";
 import { createSpeechService } from "./speechService.js";
+import { createAuthService } from "./authService.js";
+import { publicConfig } from "./siteConfig.js";
 
-export function createServer({ storage = createProgressStorage(), speech = createSpeechService() } = {}) {
-  return http.createServer(async (req, res) => {
+export function createServer({ storage = createProgressStorage(), speech = createSpeechService(), auth = createAuthService(storage), config = publicConfig() } = {}) {
+  const server = http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url || "/", "http://localhost");
-      if (url.pathname.startsWith("/api/")) await handleApi(req, res, url.pathname, storage, speech);
+      if (url.pathname.startsWith("/api/")) await handleApi(req, res, url, storage, speech, auth, config);
       else await sendStatic(req, res, url.pathname);
     } catch (error) {
       if (!res.headersSent && !res.destroyed) {
@@ -20,6 +22,8 @@ export function createServer({ storage = createProgressStorage(), speech = creat
       }
     }
   });
+  server.on("close", () => storage.close?.());
+  return server;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

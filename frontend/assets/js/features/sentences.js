@@ -4,8 +4,8 @@ import { checkGuidedSentence } from "/shared/sentenceCheck.js";
 import { checkPhrase } from "../api.js";
 import { pageHeading, esc, icon, routeLink, shuffle, audioButton } from "../core/ui.js";
 
-export function renderSentences(ctx) {
-  let index = 0;
+export function renderSentences(ctx, id = "") {
+  let index = Math.max(0, SENTENCES.findIndex(item => item.id === id));
   let mode = "blocks";
   let selected = [];
   let tokens;

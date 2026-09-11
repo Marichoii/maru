@@ -7,8 +7,27 @@ import { BEGINNER_KANJI, EXPRESSIONS, PARTICLES, SENTENCES, COMBINATIONS } from 
 import { checkPhrase } from "./phraseService.js";
 import { readJson, sendJson } from "./http.js";
 
-export async function handleApi(req, res, pathname, storage, speech) {
-  const userId = req.headers["x-maru-user"] || "default";
+export async function handleApi(req, res, url, storage, speech, auth, config) {
+  const pathname = url.pathname;
+  const redirect = (location, cookie) => { res.writeHead(303, { Location: location, "Cache-Control": "no-store", ...(cookie ? { "Set-Cookie": cookie } : {}) }); res.end(); };
+  if (pathname === "/api/config" && req.method === "GET") return sendJson(res, 200, config);
+  if (pathname === "/api/account" && req.method === "GET") return sendJson(res, 200, auth.status(req));
+  if (pathname === "/api/auth/google" && req.method === "GET") {
+    try { const login = await auth.begin(); return redirect(login.url, login.cookie); }
+    catch { return redirect("/#/settings/login-unavailable"); }
+  }
+  if (pathname === "/api/auth/google/callback" && req.method === "GET") {
+    try { const login = await auth.callback(req, url.searchParams); return redirect("/#/settings/login-success", login.cookies); }
+    catch { return redirect("/#/settings/login-failed", auth.failureCookie()); }
+  }
+  if (pathname === "/api/auth/logout" && req.method === "POST") {
+    res.setHeader("Set-Cookie", auth.logout(req));
+    return sendJson(res, 200, { ok: true });
+  }
+  const account = auth.account(req);
+  const browserId = req.headers["x-maru-user"] || "default";
+  if (typeof browserId !== "string" || !/^[a-zA-Z0-9_-]{1,80}$/.test(browserId)) return sendJson(res, 400, { error: "Perfil de navegador inválido." });
+  const userId = account ? "account:" + account.id : browserId;
   if (pathname === "/api/audio" && req.method === "POST") {
     const body = await readJson(req);
     if (typeof body.text !== "string" || body.text.length > 500) return sendJson(res, 400, { error: "Escolha um áudio do conteúdo de estudo." });
@@ -22,8 +41,13 @@ export async function handleApi(req, res, pathname, storage, speech) {
     modules: MODULES, lessons: LESSONS, beginnerKanji: BEGINNER_KANJI, expressions: EXPRESSIONS, particles: PARTICLES, sentences: SENTENCES, combinations: COMBINATIONS
   });
   if (pathname === "/api/progress") {
+    const expected = req.headers["x-maru-account"];
+    if ((expected && expected !== account?.id) || (account && req.method !== "GET" && expected !== account.id)) return sendJson(res, 409, { error: "Sua conta mudou. Recarregue a página para continuar." });
     if (req.method === "GET") return sendJson(res, 200, await storage.read(userId));
-    if (["PUT", "POST"].includes(req.method)) return sendJson(res, 200, await storage.write(await readJson(req), userId));
+    if (["PUT", "POST"].includes(req.method)) {
+      auth.assertSameOrigin(req);
+      return sendJson(res, 200, await storage.write(await readJson(req), userId));
+    }
     return sendJson(res, 405, { error: "Método não permitido." });
   }
   if (pathname === "/api/phrase/check" && req.method === "POST") return sendJson(res, 200, checkPhrase(await readJson(req)));

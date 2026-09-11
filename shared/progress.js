@@ -1,3 +1,5 @@
+import { PLACEMENT_QUESTIONS, PLACEMENT_VERSION } from "./placement.js";
+import { MODULES } from "./curriculum.js";
 const DAY = 86_400_000;
 export const localDay = (date = new Date()) => {
   const d = new Date(date);
@@ -7,6 +9,7 @@ const record = value => value && typeof value === "object" && !Array.isArray(val
 const count = value => Math.min(1e9, Math.max(0, Math.floor(Number(value) || 0)));
 const dateValue = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
 const mapRecords = (value, transform) => Object.fromEntries(Object.entries(record(value)).filter(([key]) => !["__proto__", "constructor", "prototype"].includes(key)).slice(0, 10000).map(([key, item]) => [key, transform(record(item))]));
+const dayMap = value => Object.fromEntries(Object.entries(record(value)).filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(key)).sort(([a], [b]) => a.localeCompare(b)).slice(-730).map(([key, amount]) => [key, count(amount)]));
 
 export function normalizeSnapshot(input = {}) {
   const source = record(input);
@@ -27,6 +30,14 @@ export function normalizeSnapshot(input = {}) {
     kanaStats: mapRecords(source.kanaStats, item => ({ attempts: count(item.attempts), wrong: count(item.wrong), streak: count(item.streak), updatedAt: dateValue(item.updatedAt) })),
     lessons: mapRecords(source.lessons, item => ({ completedAt: dateValue(item.completedAt), score: count(item.score) })),
     reviews: mapRecords(reviews, item => ({ due: dateValue(item.due), interval: count(item.interval), attempts: count(item.attempts), correct: count(item.correct), streak: count(item.streak), updatedAt: dateValue(item.updatedAt) })),
+    placement: {
+      version: PLACEMENT_VERSION,
+      answers: source.placement?.version === PLACEMENT_VERSION ? Object.fromEntries(PLACEMENT_QUESTIONS.filter(item => Object.hasOwn(record(source.placement?.answers), item.id)).map(item => [item.id, Number.isInteger(source.placement.answers[item.id]) && source.placement.answers[item.id] >= 0 && source.placement.answers[item.id] < item.choices.length ? source.placement.answers[item.id] : null])) : {},
+      completedAt: dateValue(source.placement?.completedAt),
+      updatedAt: dateValue(source.placement?.updatedAt),
+      acceptedModule: MODULES.some(item => item.id === source.placement?.acceptedModule) ? source.placement.acceptedModule : ""
+    },
+    restDays: dayMap(source.restDays),
     activity: Object.fromEntries(Object.entries(record(source.activity)).filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(key)).slice(-730).map(([key, value]) => [key, count(value)])),
     preferences: {
       romaji: source.preferences?.romaji !== false,
@@ -55,6 +66,8 @@ export function mergeSnapshots(local, remote) {
     lessons: mergeRecords("lessons", "completedAt"),
     reviews: mergeRecords("reviews", "updatedAt"),
     kanaStats: mergeRecords("kanaStats", "updatedAt"),
+    placement: a.placement.updatedAt >= b.placement.updatedAt ? a.placement : b.placement,
+    restDays: { ...a.restDays, ...b.restDays },
     activity: Object.fromEntries([...new Set([...Object.keys(a.activity), ...Object.keys(b.activity)])].map(day => [day, Math.max(a.activity[day] || 0, b.activity[day] || 0)]))
   });
 }
@@ -62,7 +75,19 @@ export function mergeSnapshots(local, remote) {
 export function currentStreak(snapshot, now = new Date()) {
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
-  return [localDay(now), localDay(yesterday)].includes(snapshot.streak.lastDate) ? snapshot.streak.count : 0;
+  return [localDay(now), localDay(yesterday)].includes(snapshot.streak.lastDate) || availableRestDay(snapshot, now) ? snapshot.streak.count : 0;
+}
+
+// One missed calendar day may be bridged each Monday–Sunday week.
+// The rest day earns neither activity nor XP; only actual study days count.
+export function availableRestDay(snapshot, now = new Date()) {
+  const yesterday = new Date(now); yesterday.setDate(yesterday.getDate() - 1);
+  const before = new Date(now); before.setDate(before.getDate() - 2);
+  if (!snapshot.streak.count || snapshot.streak.lastDate !== localDay(before)) return "";
+  const monday = new Date(yesterday); monday.setDate(monday.getDate() - (monday.getDay() + 6) % 7);
+  const sunday = new Date(monday); sunday.setDate(sunday.getDate() + 6);
+  if (Object.keys(snapshot.restDays || {}).some(day => day >= localDay(monday) && day <= localDay(sunday))) return "";
+  return localDay(yesterday);
 }
 
 export function recordActivity(snapshot, xp, now = Date.now()) {
@@ -70,7 +95,9 @@ export function recordActivity(snapshot, xp, now = Date.now()) {
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
   if (snapshot.streak.lastDate !== today) {
-    snapshot.streak = { count: snapshot.streak.lastDate === localDay(yesterday) ? snapshot.streak.count + 1 : 1, lastDate: today };
+    const rest = availableRestDay(snapshot, now);
+    if (rest) { snapshot.restDays ||= {}; snapshot.restDays[rest] = 1; }
+    snapshot.streak = { count: snapshot.streak.lastDate === localDay(yesterday) || rest ? snapshot.streak.count + 1 : 1, lastDate: today };
   }
   snapshot.xp.total += xp;
   snapshot.activity[today] = (snapshot.activity[today] || 0) + 1;

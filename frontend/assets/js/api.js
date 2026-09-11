@@ -1,5 +1,7 @@
 // Anonymous browser profile. This is persistence isolation, not account authentication.
 let browserProfile;
+let accountId = "";
+export const setApiAccount = id => { accountId = id || ""; };
 function profileId() {
   if (browserProfile) return browserProfile;
   try { browserProfile = localStorage.getItem("maru-profile-id"); } catch {}
@@ -25,19 +27,22 @@ export function canUseBackend(){
 async function request(path, options){
   if(!canUseBackend()) throw new Error("Backend indisponivel");
   const res = await fetch(path, Object.assign({
-    headers: { ...JSON_HEADERS, "x-maru-user": profileId() },
+    headers: { ...JSON_HEADERS, "x-maru-user": profileId(), ...(accountId ? { "x-maru-account": accountId } : {}) },
     signal: AbortSignal.timeout(5000),
     keepalive: !options?.body || new TextEncoder().encode(options.body).byteLength < 60000
   }, options || {}));
 
   if(!res.ok){
-    const message = await res.text().catch(function(){ return ""; });
-    throw new Error(message || "Falha na API");
+    const body = await res.json().catch(() => ({}));
+    throw Object.assign(new Error(body.error || "Não foi possível concluir a solicitação."), { status: res.status });
   }
 
   if(res.status === 204) return null;
   return res.json();
 }
+export const getAccount = () => request("/api/account");
+export const getSiteConfig = () => request("/api/config");
+export const signOut = () => request("/api/auth/logout", { method: "POST" });
 
 export function getProgress(){
   return request("/api/progress");

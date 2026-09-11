@@ -1,3 +1,4 @@
+import { nextLesson } from "/shared/learningPath.js";
 import { dailyMissions } from "/shared/gamification.js";
 import { MODULES, LESSONS } from "/shared/curriculum.js";
 import { currentStreak, dueReviews, localDay } from "/shared/progress.js";
@@ -6,7 +7,7 @@ import { icon, routeLink, progressBar } from "../core/ui.js";
 export function renderDashboard(ctx) {
   const p = ctx.progress;
   const completed = LESSONS.filter(lesson => p.lessons[lesson.id]?.completedAt).length;
-  const next = LESSONS.find(lesson => !p.lessons[lesson.id]?.completedAt);
+  const next = nextLesson(p);
   const goal = p.preferences.dailyGoal;
   const today = p.activity[localDay()] || 0;
   const due = dueReviews(p).length;
@@ -23,7 +24,8 @@ export function renderDashboard(ctx) {
         <div class="welcome-copy"><span class="pill light">${icon("leaf")} ${completed ? "CONTINUE A SUA JORNADA" : "FEITO PARA QUEM COMEÇA DO ZERO"}</span>
           <h2>Um novo idioma.<br>Um passo de<br><em>cada vez.</em></h2>
           <p>Do seu primeiro あ à sua primeira conversa.<br>Você não precisa saber nada para começar.</p>
-          ${routeLink(next ? "lesson/" + next.id : "review", (completed ? "Continuar aprendendo" : "Começar do zero") + icon("arrow"), "btn btn-primary")}
+          ${routeLink(next ? "lesson/" + next.id : "review", (completed || p.placement.acceptedModule ? "Continuar aprendendo" : "Começar do zero") + icon("arrow"), "btn btn-primary")}
+          ${!completed && !p.placement.acceptedModule ? routeLink("placement", "Já sei um pouco " + icon("arrow"), "text-link placement-entry") : ""}
           <span class="hero-footnote">${icon("clock")} ${next ? next.minutes + " min · " + next.title : "Revise o que você já aprendeu"}</span>
         </div>
         <div class="kana-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><span class="art-sun"></span><span class="art-main jp">あ</span><span class="art-tag tag-hira">ひらがな <small>hiragana</small></span><span class="art-kana jp">ア</span><span class="art-kanji jp">日</span><span class="art-caption">はじめの一歩<small>o primeiro passo</small></span><svg class="art-spark" viewBox="0 0 32 32"><path d="M16 0Q18 14 32 16Q18 18 16 32Q14 18 0 16Q14 14 16 0" fill="currentColor"/></svg></div>
@@ -49,6 +51,6 @@ export function renderDashboard(ctx) {
         ["review", "repeat", "Relembrar o que aprendeu", due ? due + " itens esperando por você." : "Faça o conhecimento ficar.", "lavender"]
       ].map(([route, symbol, title, text, color]) => `<a class="practice-card" href="#/${route}"><span class="practice-icon ${color}">${symbol === "あ" ? '<span class="jp">あ</span>' : icon(symbol)}</span><div><h3>${title}</h3><p>${text}</p></div>${icon("chevron")}</a>`).join("")}</div>
     </section>
-    <div class="dashboard-note"><span class="jp" lang="ja">一歩ずつ</span><p><strong>Ippo zutsu. Um passo de cada vez.</strong><br>Você não precisa aprender tudo hoje. Só precisa dar o próximo passo.</p><span class="journey-total">${completed} de ${LESSONS.length} lições concluídas</span></div>
+    <div class="dashboard-note"><span class="jp" lang="ja">一歩ずつ</span><p><strong>Ippo zutsu. Um passo de cada vez.</strong><br>Você não precisa aprender tudo hoje. Só precisa dar o próximo passo.</p><span class="journey-total">${completed} de ${LESSONS.length} lições concluídas</span></div><div class="support-footer"><span>Gratuito para aprender. Sempre.</span>${routeLink("support", "Apoie o Maru " + icon("arrow"), "text-link")}</div>
   `;
 }

@@ -1,3 +1,6 @@
+import { renderThematic } from "./features/thematic.js";
+import { renderPlacement } from "./features/placement.js";
+import { renderSupport } from "./features/support.js";
 import { renderVocabulary, renderGlossary, renderExercises } from "./features/study.js";
 import { renderWorksheets } from "./features/worksheets.js";
 import { createStore } from "./core/store.js";
@@ -26,7 +29,7 @@ function toast(message) {
   toastTimer = setTimeout(() => { element.hidden = true; }, 6500);
 }
 let status = "saved";
-const statusLabels = { saved: "Progresso salvo", local: "Salvo neste navegador", unsaved: "Progresso só nesta sessão", saving: "Salvando progresso…" };
+const statusLabels = { saved: "Progresso salvo", local: "Salvo neste navegador", unsaved: "Progresso só nesta sessão", saving: "Salvando progresso…", "account-changed": "Conta alterada · recarregue" };
 function updateStatus(value) {
   status = value;
   const element = document.querySelector("#save-status");
@@ -38,11 +41,11 @@ applyTheme(store.snapshot.preferences.theme);
 const navigation = [
   { label: "", items: [["home", "home", "Meu aprendizado"]] },
   { label: "APRENDER", items: [["journey", "path", "Minha trilha"], ["kana", "あ", "Hiragana & katakana"], ["kanji", "日", "Primeiros kanji"], ["vocabulary", "book", "Primeiras palavras"]] },
-  { label: "PRATICAR", items: [["writing", "pen", "Caderno de escrita"], ["sentences", "chat", "Formar frases"], ["particles", "layers", "Partículas"], ["exercises", "target", "Exercícios & escuta"], ["worksheets", "pen", "Atividades para imprimir"], ["review", "repeat", "Minha revisão"]] },
-  { label: "DESCOBRIR", items: [["expressions", "spark", "Expressões & gírias"], ["glossary", "book", "Explicado do zero"], ["library", "book", "Biblioteca"]] }
+  { label: "PRATICAR", items: [["writing", "pen", "Caderno de escrita"], ["sentences", "chat", "Formar frases"], ["particles", "layers", "Partículas"], ["exercises", "target", "Exercícios & escuta"], ["review", "repeat", "Minha revisão"]] },
+  { label: "DESCOBRIR", items: [["expressions", "spark", "Expressões & gírias"], ["glossary", "book", "Explicado do zero"], ["library", "book", "Biblioteca"], ["worksheets", "pen", "Atividades para imprimir"], ["themes", "path", "Trilhas temáticas"]] }
 ];
 const titles = Object.fromEntries(navigation.flatMap(group => group.items.map(([route, , label]) => [route, label])));
-titles.settings = "Meu ritmo"; titles.lesson = "Minha trilha";
+titles.placement = "Encontre seu começo"; titles.support = "Apoie o Maru"; titles.settings = "Meu ritmo"; titles.lesson = "Minha trilha";
 app.innerHTML = `
   <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Fechar navegação" hidden></button>
   <aside class="sidebar" id="sidebar"><a class="brand" href="#/home" aria-label="Maru, meu aprendizado"><img src="/assets/img/maru-mark.svg" alt="" width="38" height="38"><span>maru<span class="brand-period">.</span><small>JAPONÊS, PASSO A PASSO</small></span></a>
@@ -57,6 +60,9 @@ let cleanup;
 let routeParams = null;
 const ctx = {
   main, toast, audio,
+  get account() { return store.account; },
+  flush: () => store.flush(),
+  logout: () => store.logout(),
   get progress() { return store.snapshot; },
   save() { store.save(); updateStats(); },
   setTheme(theme) { store.snapshot.preferences.theme = theme; applyTheme(theme); store.save(); updateStats(); },
@@ -106,7 +112,7 @@ function render() {
     lesson: () => renderLesson(ctx, id),
     kana: () => renderKana(ctx, params),
     writing: () => renderWriting(ctx, id || params.char || "あ"),
-    sentences: () => renderSentences(ctx),
+    sentences: () => renderSentences(ctx, id),
     kanji: () => renderKanji(ctx),
     particles: () => renderParticles(ctx),
     expressions: () => renderExpressions(ctx),
@@ -116,7 +122,10 @@ function render() {
     glossary: () => renderGlossary(ctx),
     exercises: () => renderExercises(ctx),
     worksheets: () => renderWorksheets(ctx),
-    settings: () => renderSettings(ctx)
+    themes: () => renderThematic(ctx, id),
+    placement: () => renderPlacement(ctx),
+    support: () => renderSupport(ctx),
+    settings: () => renderSettings(ctx, id)
   };
   if (views[route]) cleanup = views[route]();
   else main.innerHTML = emptyState("Este caminho ainda não existe.", "Volte para seu espaço de aprendizado.", routeLink("home", "Meu aprendizado", "btn btn-primary"));

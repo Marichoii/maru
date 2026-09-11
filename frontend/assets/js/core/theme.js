@@ -1,11 +1,11 @@
 export const THEMES = [
-  { id: "dojo", title: "Dojo", subtitle: "Papel, tinta e tranquilidade.", description: "Um espaço claro e minimalista para estudar com calma.", symbol: "道" },
+  { id: "dojo", title: "Dojo", subtitle: "Papel, tinta e tranquilidade.", description: "Papel washi, tinta sumi e selos vermelhos. Um espaço tradicional para estudar com calma.", symbol: "道" },
   { id: "arcade", title: "Arcade", subtitle: "Pixels, neon e novas conquistas.", description: "Um fliperama escuro com nível, missões e feedback de jogo.", symbol: "遊" }
 ];
 export function applyTheme(theme) {
   const selected = theme === "arcade" ? "arcade" : "dojo";
   document.documentElement.dataset.theme = selected;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", selected === "arcade" ? "#050713" : "#f8f7f3");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", selected === "arcade" ? "#050713" : "#f3ece0");
   const mark = selected === "arcade" ? "maru-crest.svg" : "maru-mark.svg";
   document.querySelector('link[rel="icon"]')?.setAttribute("href", "/assets/img/" + mark);
   document.querySelector(".brand img")?.setAttribute("src", "/assets/img/" + mark);

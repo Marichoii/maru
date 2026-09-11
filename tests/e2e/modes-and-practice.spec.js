@@ -170,7 +170,7 @@ test("new screens and arcade layouts fit desktop, tablet and small phones",async
       const routes=theme==="arcade"?["home","journey","kana","kanji","writing","sentences","particles","expressions","library","review","settings","lesson/welcome","vocabulary","exercises","worksheets","glossary"]:["vocabulary","exercises","worksheets","glossary","settings"];
       for(const route of routes){
         await go(page,route);
-        expect(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),theme+" colors at "+width).toBe(theme==="arcade"?"rgb(5, 7, 19)":"rgb(248, 247, 243)");
+        expect(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),theme+" colors at "+width).toBe(theme==="arcade"?"rgb(5, 7, 19)":"rgb(243, 236, 224)");
         expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),theme+" "+route+" at "+width).toBe(false);
       }
     }
