@@ -13,3 +13,6 @@ test-results/
 !.env.example
 data/**/*.sqlite*
 backups/
+
+# Local Netlify folder
+.netlify
