@@ -13,6 +13,10 @@ async function answer(page, question, correct=true) {
 }
 test("placement resumes, preserves XP, accepts a suggestion and can be reset",async({page})=>{
   await page.goto("/#/home");
+  await page.locator("#welcome-goal").selectOption("10");
+  await page.reload();
+  await expect(page.locator("#welcome-goal")).toHaveValue("10");
+  await expect(page.locator(".goal-ring")).toContainText("/10");
   await page.getByRole("link",{name:"Já sei um pouco",exact:false}).click();
   await page.getByRole("button",{name:"Encontrar meu começo",exact:false}).click();
   await answer(page,PLACEMENT_QUESTIONS[0]);
@@ -76,6 +80,7 @@ test("the new routes and full hero seal fit both modes, including 320px phones",
       await page.setViewportSize({width,height:1000});
       await page.goto("/#/home");
       await page.evaluate(theme=>document.querySelector('[data-theme-choice="'+theme+'"]').click(),theme);
+      if(width<=820)await expect.poll(()=>page.locator(".sidebar").evaluate(el=>el.getBoundingClientRect().right),{message:"Closed mobile menu stays outside the page"}).toBeLessThanOrEqual(0);
       const contained=await page.evaluate(()=>{
         const hero=document.querySelector(".welcome-card").getBoundingClientRect();
         const seal=document.querySelector(".art-sun").getBoundingClientRect();
@@ -118,6 +123,15 @@ test("account migration and sign-out keep guest and account caches separate",asy
   expect(account.lessons.welcome.completedAt).toBe(10);
   expect(account.lessons.sounds.completedAt).toBe(20);
   expect((await saved(page)).xp.total).toBe(30);
+  // A different tab changing identity stops synchronization, while this tab's work stays local.
+  await page.evaluate(()=>{
+    localStorage.removeItem("maru-active-account");
+    window.dispatchEvent(new StorageEvent("storage",{key:"maru-active-account"}));
+  });
+  await expect(page.locator("#save-status")).toHaveText("Conta alterada · recarregue");
+  await page.locator('input[name="daily-goal"][value="10"]').check();
+  await expect(page.locator("#save-status")).toHaveText("Conta alterada · recarregue");
+  expect(await page.evaluate(id=>JSON.parse(localStorage.getItem("maru-account-"+id+"-v2")).preferences.dailyGoal,id)).toBe(10);
   await page.getByRole("button",{name:"Sair desta conta",exact:true}).click();
   await expect(page.locator("#google-login")).toBeVisible();
   await expect(page.locator("#xp-total")).toHaveText("30 XP");

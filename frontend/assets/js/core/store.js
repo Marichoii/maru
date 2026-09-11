@@ -79,7 +79,11 @@ export async function createStore(onStatus) {
   return {
     get snapshot() { return snapshot; },
     get account() { return { user, googleEnabled, verified }; },
-    save() { snapshot.updatedAt = Date.now(); persistLocal(); dirty = true; report("saving"); clearTimeout(timer); timer = setTimeout(flush, 250); },
+    save() {
+      snapshot.updatedAt = Date.now(); persistLocal(); dirty = true;
+      if (stopped) { report("account-changed"); return; }
+      report("saving"); clearTimeout(timer); timer = setTimeout(flush, 250);
+    },
     flush,
     async logout() {
       await flush();

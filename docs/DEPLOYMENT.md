@@ -91,7 +91,7 @@ WAL/SHM de outro estado. Confira um perfil de teste antes de reabrir acesso.
 ## Apoio
 
 MARU_SUPPORT_BR_URL e MARU_SUPPORT_GLOBAL_URL aceitam links HTTPS reais,
-como a página que a proprietária criar no Apoia.se ou Ko-fi. Só esses links
+como a página de apoio do Maru no Apoia.se ou Ko-fi. Só esses links
 públicos são enviados ao navegador. Sem endereço, a página informa que o canal
 está sendo preparado e não exibe botão de pagamento.
 
